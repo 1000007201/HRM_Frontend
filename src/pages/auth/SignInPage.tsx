@@ -1,25 +1,28 @@
-import { useState, type FormEvent } from 'react'
+import { useState } from 'react'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
 import { Link, useLocation } from 'react-router-dom'
 import { AuthLayout } from '../../components/auth/AuthLayout'
 import { Button } from '../../components/auth/Button'
 import { FormInput } from '../../components/auth/FormInput'
 import { authClient } from '../../lib/auth-client'
+import { signInSchema, type SignInFormValues } from '../../lib/validation'
 
 export function SignInPage() {
   const location = useLocation()
   const redirectMessage = (location.state as { message?: string } | null)?.message
 
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<SignInFormValues>({ resolver: zodResolver(signInSchema) })
 
-  async function handleSubmit(event: FormEvent) {
-    event.preventDefault()
+  async function onSubmit(values: SignInFormValues) {
     setErrorMessage('')
-    setIsLoading(true)
     try {
-      const { error } = await authClient.signIn.email({ email, password })
+      const { error } = await authClient.signIn.email(values)
       if (error) {
         setErrorMessage(
           error.status === 429
@@ -29,8 +32,6 @@ export function SignInPage() {
       }
     } catch {
       setErrorMessage('Could not reach the server. Check your connection and try again.')
-    } finally {
-      setIsLoading(false)
     }
   }
 
@@ -47,26 +48,24 @@ export function SignInPage() {
           {errorMessage}
         </p>
       )}
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <FormInput
           id="email"
           label="Email"
           type="email"
-          required
-          disabled={isLoading}
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
+          disabled={isSubmitting}
+          errorMessage={errors.email?.message}
+          {...register('email')}
         />
         <FormInput
           id="password"
           label="Password"
           type="password"
-          required
-          disabled={isLoading}
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
+          disabled={isSubmitting}
+          errorMessage={errors.password?.message}
+          {...register('password')}
         />
-        <Button type="submit" isLoading={isLoading}>
+        <Button type="submit" isLoading={isSubmitting}>
           Sign in
         </Button>
       </form>

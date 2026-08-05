@@ -1,12 +1,7 @@
-import type { ReactNode } from 'react'
-import { Navigate } from 'react-router-dom'
+import { Navigate, Outlet } from 'react-router-dom'
 import { authClient } from '../../lib/auth-client'
 
-interface RequireGuestProps {
-  children: ReactNode
-}
-
-export function RequireGuest({ children }: RequireGuestProps) {
+export function RequireGuest() {
   const { data: session, isPending } = authClient.useSession()
 
   if (isPending) {
@@ -18,8 +13,8 @@ export function RequireGuest({ children }: RequireGuestProps) {
   }
 
   if (session) {
-    return <Navigate to="/" replace />
+    return <Navigate to="/dashboard" replace />
   }
 
-  return children
+  return <Outlet />
 }

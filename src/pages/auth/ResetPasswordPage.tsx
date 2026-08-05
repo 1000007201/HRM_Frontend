@@ -1,41 +1,40 @@
-import { useState, type FormEvent } from 'react'
+import { useState } from 'react'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom'
 import { AuthLayout } from '../../components/auth/AuthLayout'
 import { Button } from '../../components/auth/Button'
 import { FormInput } from '../../components/auth/FormInput'
 import { authClient } from '../../lib/auth-client'
+import { MAX_PASSWORD_LENGTH, resetPasswordSchema, type ResetPasswordFormValues } from '../../lib/validation'
 
-const MIN_PASSWORD_LENGTH = 10
-const MAX_PASSWORD_LENGTH = 128
-
-type SubmitStatus = 'idle' | 'loading' | 'rateLimited' | 'invalidToken' | 'networkError'
+type SubmitStatus = 'idle' | 'rateLimited' | 'invalidToken' | 'networkError'
 
 export function ResetPasswordPage() {
   const [searchParams] = useSearchParams()
   const token = searchParams.get('token')
+  const tokenError = searchParams.get('error')
   const navigate = useNavigate()
 
-  const [newPassword, setNewPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [status, setStatus] = useState<SubmitStatus>('idle')
+  const [status, setStatus] = useState<SubmitStatus>(tokenError === 'INVALID_TOKEN' ? 'invalidToken' : 'idle')
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors, isSubmitting },
+  } = useForm<ResetPasswordFormValues>({ resolver: zodResolver(resetPasswordSchema) })
+  const newPassword = watch('newPassword') ?? ''
 
-  if (!token) {
+  if (!token && status !== 'invalidToken') {
     return <Navigate to="/forgot-password" replace />
   }
 
-  const meetsLength = newPassword.length >= MIN_PASSWORD_LENGTH && newPassword.length <= MAX_PASSWORD_LENGTH
-  const passwordsMatch = confirmPassword.length === 0 || confirmPassword === newPassword
-  const canSubmit = meetsLength && confirmPassword === newPassword
-
-  async function handleSubmit(event: FormEvent) {
-    event.preventDefault()
-    if (!canSubmit) return
-    setStatus('loading')
+  async function onSubmit(values: ResetPasswordFormValues) {
     try {
-      const { error } = await authClient.resetPassword({ newPassword, token: token! })
+      const { error } = await authClient.resetPassword({ newPassword: values.newPassword, token: token! })
       if (!error) {
         // Resetting revokes every session for this user — send them to sign in again, not into the app.
-        navigate('/sign-in', {
+        navigate('/login', {
           replace: true,
           state: { message: 'Your password has been reset. Please sign in again.' },
         })
@@ -75,31 +74,27 @@ export function ResetPasswordPage() {
           Could not reach the server. Check your connection and try again.
         </p>
       )}
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <FormInput
           id="newPassword"
           label="New password"
           type="password"
-          required
-          disabled={status === 'loading'}
-          value={newPassword}
-          onChange={(event) => setNewPassword(event.target.value)}
+          disabled={isSubmitting}
+          errorMessage={errors.newPassword?.message}
+          {...register('newPassword')}
         />
         <p className="-mt-3 mb-4 text-xs text-secondary">
           {newPassword.length}/{MAX_PASSWORD_LENGTH} characters
-          {meetsLength ? ' — meets minimum length' : ` — at least ${MIN_PASSWORD_LENGTH} required`}
         </p>
         <FormInput
           id="confirmPassword"
           label="Confirm password"
           type="password"
-          required
-          disabled={status === 'loading'}
-          value={confirmPassword}
-          onChange={(event) => setConfirmPassword(event.target.value)}
-          errorMessage={!passwordsMatch ? 'Passwords do not match' : undefined}
+          disabled={isSubmitting}
+          errorMessage={errors.confirmPassword?.message}
+          {...register('confirmPassword')}
         />
-        <Button type="submit" isLoading={status === 'loading'} disabled={!canSubmit}>
+        <Button type="submit" isLoading={isSubmitting}>
           Reset password
         </Button>
       </form>

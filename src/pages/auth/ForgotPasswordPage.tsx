@@ -1,22 +1,27 @@
-import { useState, type FormEvent } from 'react'
+import { useState } from 'react'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
 import { Link } from 'react-router-dom'
 import { AuthLayout } from '../../components/auth/AuthLayout'
 import { Button } from '../../components/auth/Button'
 import { FormInput } from '../../components/auth/FormInput'
 import { authClient } from '../../lib/auth-client'
+import { forgotPasswordSchema, type ForgotPasswordFormValues } from '../../lib/validation'
 
-type SubmitStatus = 'idle' | 'loading' | 'success' | 'rateLimited' | 'networkError'
+type SubmitStatus = 'idle' | 'success' | 'rateLimited' | 'networkError'
 
 export function ForgotPasswordPage() {
-  const [email, setEmail] = useState('')
   const [status, setStatus] = useState<SubmitStatus>('idle')
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<ForgotPasswordFormValues>({ resolver: zodResolver(forgotPasswordSchema) })
 
-  async function handleSubmit(event: FormEvent) {
-    event.preventDefault()
-    setStatus('loading')
+  async function onSubmit(values: ForgotPasswordFormValues) {
     try {
       const { error } = await authClient.requestPasswordReset({
-        email,
+        email: values.email,
         redirectTo: `${window.location.origin}/reset-password`,
       })
       setStatus(error?.status === 429 ? 'rateLimited' : 'success')
@@ -32,7 +37,7 @@ export function ForgotPasswordPage() {
         <p className="text-sm text-body">
           If an account with that email exists, we've sent a reset link.
         </p>
-        <Link to="/sign-in" className="mt-4 block text-center text-sm text-primary-300 hover:underline">
+        <Link to="/login" className="mt-4 block text-center text-sm text-primary-300 hover:underline">
           Back to sign in
         </Link>
       </AuthLayout>
@@ -55,17 +60,16 @@ export function ForgotPasswordPage() {
           Could not reach the server. Check your connection and try again.
         </p>
       )}
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <FormInput
           id="email"
           label="Email"
           type="email"
-          required
-          disabled={status === 'loading'}
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
+          disabled={isSubmitting}
+          errorMessage={errors.email?.message}
+          {...register('email')}
         />
-        <Button type="submit" isLoading={status === 'loading'}>
+        <Button type="submit" isLoading={isSubmitting}>
           Send reset link
         </Button>
       </form>

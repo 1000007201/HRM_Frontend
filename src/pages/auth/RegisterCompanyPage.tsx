@@ -1,33 +1,26 @@
-import { useState, type FormEvent } from 'react'
+import { useState } from 'react'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import { AuthLayout } from '../../components/auth/AuthLayout'
 import { Button } from '../../components/auth/Button'
 import { FormInput } from '../../components/auth/FormInput'
 import { API_BASE_URL, authClient } from '../../lib/auth-client'
-
-const MIN_PASSWORD_LENGTH = 10
-const MAX_PASSWORD_LENGTH = 128
+import { MAX_PASSWORD_LENGTH, registerCompanySchema, type RegisterCompanyFormValues } from '../../lib/validation'
 
 export function RegisterCompanyPage() {
   const navigate = useNavigate()
-
-  const [companyName, setCompanyName] = useState('')
-  const [fullName, setFullName] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors, isSubmitting },
+  } = useForm<RegisterCompanyFormValues>({ resolver: zodResolver(registerCompanySchema) })
+  const password = watch('password') ?? ''
 
-  const meetsLength = password.length >= MIN_PASSWORD_LENGTH && password.length <= MAX_PASSWORD_LENGTH
-  const passwordsMatch = confirmPassword.length === 0 || confirmPassword === password
-  const canSubmit = meetsLength && confirmPassword === password
-
-  async function handleSubmit(event: FormEvent) {
-    event.preventDefault()
-    if (!canSubmit) return
+  async function onSubmit(values: RegisterCompanyFormValues) {
     setErrorMessage('')
-    setIsLoading(true)
     try {
       const response = await fetch(`${API_BASE_URL}/api/register-company`, {
         method: 'POST',
@@ -36,13 +29,18 @@ export function RegisterCompanyPage() {
           'Content-Type': 'application/json',
           'X-Registration-Secret': import.meta.env.VITE_REGISTRATION_SECRET ?? '',
         },
-        body: JSON.stringify({ companyName, fullName, email, password }),
+        body: JSON.stringify({
+          companyName: values.companyName,
+          fullName: values.fullName,
+          email: values.email,
+          password: values.password,
+        }),
       })
       if (response.ok) {
         // This fetch bypasses authClient, so its reactive session state doesn't
         // know about the new cookie yet — force it to refresh before routing in.
         await authClient.getSession()
-        navigate('/', { replace: true })
+        navigate('/dashboard', { replace: true })
         return
       }
       const body: { error?: string } | null = await response.json().catch(() => null)
@@ -53,8 +51,6 @@ export function RegisterCompanyPage() {
       )
     } catch {
       setErrorMessage('Could not reach the server. Check your connection and try again.')
-    } finally {
-      setIsLoading(false)
     }
   }
 
@@ -67,56 +63,49 @@ export function RegisterCompanyPage() {
           {errorMessage}
         </p>
       )}
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <FormInput
           id="companyName"
           label="Company name"
-          required
-          disabled={isLoading}
-          value={companyName}
-          onChange={(event) => setCompanyName(event.target.value)}
+          disabled={isSubmitting}
+          errorMessage={errors.companyName?.message}
+          {...register('companyName')}
         />
         <FormInput
           id="fullName"
           label="Your full name"
-          required
-          disabled={isLoading}
-          value={fullName}
-          onChange={(event) => setFullName(event.target.value)}
+          disabled={isSubmitting}
+          errorMessage={errors.fullName?.message}
+          {...register('fullName')}
         />
         <FormInput
           id="email"
           label="Email"
           type="email"
-          required
-          disabled={isLoading}
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
+          disabled={isSubmitting}
+          errorMessage={errors.email?.message}
+          {...register('email')}
         />
         <FormInput
           id="password"
           label="Password"
           type="password"
-          required
-          disabled={isLoading}
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
+          disabled={isSubmitting}
+          errorMessage={errors.password?.message}
+          {...register('password')}
         />
         <p className="-mt-3 mb-4 text-xs text-secondary">
           {password.length}/{MAX_PASSWORD_LENGTH} characters
-          {meetsLength ? ' — meets minimum length' : ` — at least ${MIN_PASSWORD_LENGTH} required`}
         </p>
         <FormInput
           id="confirmPassword"
           label="Confirm password"
           type="password"
-          required
-          disabled={isLoading}
-          value={confirmPassword}
-          onChange={(event) => setConfirmPassword(event.target.value)}
-          errorMessage={!passwordsMatch ? 'Passwords do not match' : undefined}
+          disabled={isSubmitting}
+          errorMessage={errors.confirmPassword?.message}
+          {...register('confirmPassword')}
         />
-        <Button type="submit" isLoading={isLoading} disabled={!canSubmit}>
+        <Button type="submit" isLoading={isSubmitting}>
           Create company
         </Button>
       </form>
