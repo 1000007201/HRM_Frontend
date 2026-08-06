@@ -74,3 +74,10 @@ export function useCancelInvitation() {
     },
   })
 }
+
+export function useOrgChart() {
+  return useQuery({
+    queryKey: ['org-chart'],
+    queryFn: () => api.getOrgChart(),
+  })
+}

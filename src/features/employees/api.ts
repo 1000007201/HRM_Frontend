@@ -5,6 +5,7 @@ import type {
   EmployeeListResult,
   Invitation,
   InvitationLink,
+  OrgChartNode,
   UpdateEmployeeInput,
 } from './types'
 
@@ -44,4 +45,8 @@ export function listInvitations() {
 
 export function cancelInvitation(id: string) {
   return apiFetch<{ invitation: Invitation }>(`/api/invitations/${id}/cancel`, { method: 'POST' })
+}
+
+export function getOrgChart() {
+  return apiFetch<{ tree: OrgChartNode[] }>('/api/employees/org-chart')
 }

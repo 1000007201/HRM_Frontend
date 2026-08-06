@@ -43,11 +43,11 @@ export function RegisterCompanyPage() {
         navigate('/dashboard', { replace: true })
         return
       }
-      const body: { error?: string } | null = await response.json().catch(() => null)
+      const body: { error?: { message?: string } } | null = await response.json().catch(() => null)
       setErrorMessage(
         response.status === 429
           ? 'Too many attempts. Please wait a moment and try again.'
-          : (body?.error ?? 'Could not register your company. Please try again.'),
+          : (body?.error?.message ?? 'Could not register your company. Please try again.'),
       )
     } catch {
       setErrorMessage('Could not reach the server. Check your connection and try again.')

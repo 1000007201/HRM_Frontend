@@ -86,6 +86,9 @@ export function AppLayout() {
               <NavLink to="/employees" className={navLinkClassName}>
                 Employees
               </NavLink>
+              <NavLink to="/org-chart" className={navLinkClassName}>
+                Org chart
+              </NavLink>
               <NavLink to="/invitations" className={navLinkClassName}>
                 Invitations
               </NavLink>

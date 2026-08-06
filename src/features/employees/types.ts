@@ -59,3 +59,12 @@ export interface InvitationLink {
   url: string
   invitation: { id: string; email: string; role: string | null; expiresAt: string }
 }
+
+export interface OrgChartNode {
+  id: string
+  fullName: string
+  role: EmployeeRole
+  designation: string | null
+  hasPortalAccess: boolean
+  reports: OrgChartNode[]
+}

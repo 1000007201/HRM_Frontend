@@ -13,6 +13,7 @@ import { EmployeeDetailPage } from './pages/employees/EmployeeDetailPage'
 import { CreateEmployeePage } from './pages/employees/CreateEmployeePage'
 import { EditEmployeePage } from './pages/employees/EditEmployeePage'
 import { PendingInvitationsPage } from './pages/employees/PendingInvitationsPage'
+import { OrgChartPage } from './pages/employees/OrgChartPage'
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
           <Route element={<AppLayout />}>
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/employees" element={<EmployeesListPage />} />
+            <Route path="/org-chart" element={<OrgChartPage />} />
             <Route path="/employees/new" element={<CreateEmployeePage />} />
             <Route path="/employees/:id" element={<EmployeeDetailPage />} />
             <Route path="/employees/:id/edit" element={<EditEmployeePage />} />
