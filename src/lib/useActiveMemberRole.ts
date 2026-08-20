@@ -14,12 +14,22 @@ import { authClient } from './auth-client'
 // as "admin" here or the org's own creator loses access to this UI.
 const MANAGER_ORG_ROLES = new Set(['owner', 'admin', 'hr'])
 
+// Approvals are gated wider than employee management — MANAGER can approve or
+// reject both leave requests and attendance regularizations (backend
+// APPROVER_ROLES in src/routes/leaveRequests.ts and src/routes/regularizations.ts)
+// even though MANAGER can't create/edit employees.
+const APPROVER_ORG_ROLES = new Set(['owner', 'admin', 'hr', 'manager'])
+
 export function useActiveMemberRole() {
   const { data: session } = authClient.useSession()
   const { data, isPending } = useQuery({
     queryKey: ['active-member', session?.session.activeOrganizationId],
-    queryFn: async () => {
-      const { data } = await authClient.organization.getActiveMember()
+    // Forward React Query's abort signal so a cancelled/unmounted query
+    // (e.g. sign-out cancelling it, see AppLayout's handleSignOut) aborts
+    // the underlying request instead of letting it resolve into a 401 after
+    // the session cookie is already gone.
+    queryFn: async ({ signal }) => {
+      const { data } = await authClient.organization.getActiveMember({ fetchOptions: { signal } })
       return data
     },
     enabled: Boolean(session?.session.activeOrganizationId),
@@ -29,5 +39,6 @@ export function useActiveMemberRole() {
   return {
     isLoading: isPending,
     canManageEmployees: Boolean(orgRole && MANAGER_ORG_ROLES.has(orgRole)),
+    canApproveRequests: Boolean(orgRole && APPROVER_ORG_ROLES.has(orgRole)),
   }
 }

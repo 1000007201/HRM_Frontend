@@ -14,6 +14,13 @@ import { CreateEmployeePage } from './pages/employees/CreateEmployeePage'
 import { EditEmployeePage } from './pages/employees/EditEmployeePage'
 import { PendingInvitationsPage } from './pages/employees/PendingInvitationsPage'
 import { OrgChartPage } from './pages/employees/OrgChartPage'
+import { MyLeavePage } from './pages/leave/MyLeavePage'
+import { ApplyLeavePage } from './pages/leave/ApplyLeavePage'
+import { LeaveApprovalsPage } from './pages/leave/LeaveApprovalsPage'
+import { HolidaysPage } from './pages/holidays/HolidaysPage'
+import { MyAttendancePage } from './pages/attendance/MyAttendancePage'
+import { HrDayViewPage } from './pages/attendance/HrDayViewPage'
+import { AttendanceApprovalsPage } from './pages/attendance/AttendanceApprovalsPage'
 
 function App() {
   return (
@@ -36,6 +43,13 @@ function App() {
             <Route path="/employees/:id" element={<EmployeeDetailPage />} />
             <Route path="/employees/:id/edit" element={<EditEmployeePage />} />
             <Route path="/invitations" element={<PendingInvitationsPage />} />
+            <Route path="/leave" element={<MyLeavePage />} />
+            <Route path="/leave/apply" element={<ApplyLeavePage />} />
+            <Route path="/leave/approvals" element={<LeaveApprovalsPage />} />
+            <Route path="/holidays" element={<HolidaysPage />} />
+            <Route path="/attendance" element={<MyAttendancePage />} />
+            <Route path="/attendance/day" element={<HrDayViewPage />} />
+            <Route path="/attendance/approvals" element={<AttendanceApprovalsPage />} />
           </Route>
         </Route>
 
