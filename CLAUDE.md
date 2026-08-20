@@ -49,7 +49,7 @@ style SPA behind authentication — not a public/marketing site.
 ## Commands
 
 ```bash
-npm run dev        # Vite dev server (default http://localhost:5173)
+npm run dev        # Vite dev server (http://localhost:5174, strictPort)
 npm run build      # production build
 npm run preview    # preview the production build
 npm run typecheck  # tsc --noEmit  (must pass before considering work done)
@@ -57,10 +57,11 @@ npm run typecheck  # tsc --noEmit  (must pass before considering work done)
 
 ## Talking to the backend
 
-- Backend runs at **http://localhost:3000**; this app runs at
-  **http://localhost:5173**. Those origins are wired into the backend's CORS +
-  Better Auth `trustedOrigins`.
-- Put the API base URL in an env var (`VITE_API_URL`), never hard-code it.
+- Backend runs at **http://localhost:4000**; this app runs at
+  **http://localhost:5174**. Those origins are wired into the backend's CORS +
+  Better Auth `trustedOrigins` (backend `PORT` / `BETTER_AUTH_URL` /
+  `FRONTEND_ORIGIN`).
+- Put the API base URL in an env var (`VITE_API_BASE_URL`), never hard-code it.
 - Auth is **cookie/session based** via Better Auth — send requests with
   credentials included so the session cookie rides along.
 - The signed-in user belongs to an **organization** (their company). Most data
