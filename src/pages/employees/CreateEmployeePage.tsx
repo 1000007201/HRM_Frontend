@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { ApiError } from '../../lib/apiClient'
+import { errorMessage } from '../../lib/apiClient'
 import { EmployeeForm } from '../../features/employees/EmployeeForm'
 import { useCreateEmployee } from '../../features/employees/hooks'
 import type { EmployeeFormValues } from '../../features/employees/validation'
@@ -22,7 +22,7 @@ export function CreateEmployeePage() {
       })
       navigate(`/employees/${employee.id}`, { replace: true })
     } catch (error) {
-      setServerError(error instanceof ApiError ? error.message : 'Could not create the employee. Please try again.')
+      setServerError(errorMessage(error, 'Could not create the employee. Please try again.'))
     }
   }
 

@@ -11,6 +11,14 @@ export class ApiError extends Error {
   }
 }
 
+// The backend's error.message is written to be shown to users, so prefer it
+// whenever the failure came from the API and fall back only for the unexpected
+// (a thrown TypeError, an aborted request). Pages that need to branch on a
+// specific status keep doing `error instanceof ApiError && error.status === 404`
+// — that's per-page messaging, not this.
+export const errorMessage = (error: unknown, fallback: string): string =>
+  error instanceof ApiError ? error.message : fallback
+
 // Backend envelope (every route except /api/auth/*): { success, data } on
 // success, { success: false, error: { code, message, details? } } on failure.
 interface ApiEnvelope<TResponse> {

@@ -1,31 +1,15 @@
 import { Link } from 'react-router-dom'
 import { Button } from '../../components/ui/Button'
-import { ApiError } from '../../lib/apiClient'
+import { errorMessage } from '../../lib/apiClient'
 import { useCancelLeaveRequest, useMyLeaveBalances, useMyLeaveRequests } from '../../features/leave/hooks'
-import type { LeaveStatus } from '../../features/leave/types'
-
-const STATUS_BADGE_CLASSES: Record<LeaveStatus, string> = {
-  PENDING: 'bg-warning-bg text-warning',
-  APPROVED: 'bg-success-bg text-success',
-  REJECTED: 'bg-error-bg text-error',
-  CANCELLED: 'bg-charcoal-50 text-secondary',
-}
-
-function StatusBadge({ status }: { status: LeaveStatus }) {
-  return (
-    <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_BADGE_CLASSES[status]}`}>{status}</span>
-  )
-}
+import { LoadingState } from '../../components/ui/Spinner'
+import { RequestStatusBadge } from '../../components/ui/RequestStatusBadge'
 
 function BalancesPanel() {
   const { data, isPending, isError } = useMyLeaveBalances()
 
   if (isPending) {
-    return (
-      <div className="flex justify-center py-4">
-        <span className="h-6 w-6 animate-spin rounded-full border-2 border-primary-100 border-t-primary-300" />
-      </div>
-    )
+    return <LoadingState size="sm" padding="py-4" />
   }
 
   if (isError) {
@@ -56,11 +40,7 @@ function RequestHistory() {
   const cancelLeaveRequest = useCancelLeaveRequest()
 
   if (isPending) {
-    return (
-      <div className="flex justify-center py-8">
-        <span className="h-8 w-8 animate-spin rounded-full border-2 border-primary-100 border-t-primary-300" />
-      </div>
-    )
+    return <LoadingState />
   }
 
   if (isError) {
@@ -94,7 +74,7 @@ function RequestHistory() {
               </td>
               <td className="py-2 text-body">{leaveRequest.workingDays}</td>
               <td className="py-2">
-                <StatusBadge status={leaveRequest.status} />
+                <RequestStatusBadge status={leaveRequest.status} />
               </td>
               <td className="py-2 text-right">
                 {leaveRequest.status === 'PENDING' && (
@@ -114,7 +94,7 @@ function RequestHistory() {
       </table>
       {cancelLeaveRequest.isError && (
         <p className="mt-3 text-sm text-error">
-          {cancelLeaveRequest.error instanceof ApiError ? cancelLeaveRequest.error.message : 'Could not cancel the request.'}
+          {errorMessage(cancelLeaveRequest.error, 'Could not cancel the request.')}
         </p>
       )}
     </div>

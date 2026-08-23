@@ -1,5 +1,6 @@
 import { Navigate, Outlet } from 'react-router-dom'
 import { authClient } from '../../lib/auth-client'
+import { Spinner } from '../ui/Spinner'
 
 export function RequireGuest() {
   const { data: session, isPending } = authClient.useSession()
@@ -7,7 +8,7 @@ export function RequireGuest() {
   if (isPending) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-charcoal-50">
-        <span className="h-8 w-8 animate-spin rounded-full border-2 border-primary-100 border-t-primary-300" />
+        <Spinner />
       </div>
     )
   }

@@ -5,9 +5,10 @@ import { Link, useNavigate } from 'react-router-dom'
 import { Button } from '../../components/ui/Button'
 import { FormInput } from '../../components/ui/FormInput'
 import { FormSelect } from '../../components/ui/FormSelect'
-import { ApiError } from '../../lib/apiClient'
+import { errorMessage } from '../../lib/apiClient'
 import { useCreateLeaveRequest, useLeaveTypes, useMyLeaveBalances } from '../../features/leave/hooks'
 import { applyLeaveFormSchema, type ApplyLeaveFormValues } from '../../features/leave/validation'
+import { LoadingState } from '../../components/ui/Spinner'
 
 export function ApplyLeavePage() {
   const navigate = useNavigate()
@@ -47,16 +48,12 @@ export function ApplyLeavePage() {
       })
       navigate('/leave', { replace: true })
     } catch (error) {
-      setServerError(error instanceof ApiError ? error.message : 'Could not submit the leave request. Please try again.')
+      setServerError(errorMessage(error, 'Could not submit the leave request. Please try again.'))
     }
   }
 
   if (isLeaveTypesPending) {
-    return (
-      <div className="flex justify-center py-8">
-        <span className="h-8 w-8 animate-spin rounded-full border-2 border-primary-100 border-t-primary-300" />
-      </div>
-    )
+    return <LoadingState />
   }
 
   if (isLeaveTypesError) {

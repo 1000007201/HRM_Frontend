@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
-import { ApiError } from '../../lib/apiClient'
+import { errorMessage } from '../../lib/apiClient'
 import { EmployeeForm } from '../../features/employees/EmployeeForm'
 import { useEmployee, useUpdateEmployee } from '../../features/employees/hooks'
 import type { EmployeeFormValues } from '../../features/employees/validation'
+import { LoadingState } from '../../components/ui/Spinner'
 
 export function EditEmployeePage() {
   const { id } = useParams<{ id: string }>()
@@ -13,11 +14,7 @@ export function EditEmployeePage() {
   const [serverError, setServerError] = useState('')
 
   if (isPending) {
-    return (
-      <div className="flex justify-center py-8">
-        <span className="h-8 w-8 animate-spin rounded-full border-2 border-primary-100 border-t-primary-300" />
-      </div>
-    )
+    return <LoadingState />
   }
 
   if (isError || !data) {
@@ -52,7 +49,7 @@ export function EditEmployeePage() {
       })
       navigate(`/employees/${id}`, { replace: true })
     } catch (error) {
-      setServerError(error instanceof ApiError ? error.message : 'Could not save changes. Please try again.')
+      setServerError(errorMessage(error, 'Could not save changes. Please try again.'))
     }
   }
 

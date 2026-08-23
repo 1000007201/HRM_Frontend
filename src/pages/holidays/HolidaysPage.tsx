@@ -3,12 +3,13 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Button } from '../../components/ui/Button'
 import { FormInput } from '../../components/ui/FormInput'
-import { ApiError } from '../../lib/apiClient'
+import { errorMessage } from '../../lib/apiClient'
 import { useActiveMemberRole } from '../../lib/useActiveMemberRole'
 import { useCreateHoliday, useDeleteHoliday, useHolidays } from '../../features/holidays/hooks'
 import type { Holiday } from '../../features/holidays/types'
 import { holidayFormSchema, type HolidayFormValues } from '../../features/holidays/validation'
 import { BulkAddHolidays } from '../../features/holidays/BulkAddHolidays'
+import { LoadingState } from '../../components/ui/Spinner'
 
 // timeZone: 'UTC' throughout — holiday dates are UTC-midnight calendar dates,
 // so formatting them in the viewer's local zone would shift them a day west of
@@ -50,7 +51,7 @@ function AddHolidayForm() {
       await createHoliday.mutateAsync(values)
       reset()
     } catch (error) {
-      setServerError(error instanceof ApiError ? error.message : 'Could not add the holiday. Please try again.')
+      setServerError(errorMessage(error, 'Could not add the holiday. Please try again.'))
     }
   }
 
@@ -92,17 +93,13 @@ function HolidayList({ year, canManage }: { year: number; canManage: boolean }) 
   const deleteHoliday = useDeleteHoliday()
 
   if (isPending) {
-    return (
-      <div className="flex justify-center py-8">
-        <span className="h-8 w-8 animate-spin rounded-full border-2 border-primary-100 border-t-primary-300" />
-      </div>
-    )
+    return <LoadingState />
   }
 
   if (isError) {
     return (
       <p className="text-sm text-error">
-        {error instanceof ApiError ? error.message : 'Could not load the holiday calendar. Please try again.'}
+        {errorMessage(error, 'Could not load the holiday calendar. Please try again.')}
       </p>
     )
   }
@@ -115,7 +112,7 @@ function HolidayList({ year, canManage }: { year: number; canManage: boolean }) 
     <div>
       {deleteHoliday.isError && (
         <p className="mb-3 text-sm text-error">
-          {deleteHoliday.error instanceof ApiError ? deleteHoliday.error.message : 'Could not delete the holiday.'}
+          {errorMessage(deleteHoliday.error, 'Could not delete the holiday.')}
         </p>
       )}
       <div className="flex flex-col gap-6">

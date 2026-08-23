@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form'
 import { Button } from '../../components/ui/Button'
 import { FormInput } from '../../components/ui/FormInput'
 import { FormSelect } from '../../components/ui/FormSelect'
-import { ApiError } from '../../lib/apiClient'
+import { ApiError, errorMessage } from '../../lib/apiClient'
 import { useMarkAttendance, useOrgDay } from '../../features/attendance/hooks'
 import {
   ATTENDANCE_STATUS_LABELS,
@@ -17,6 +17,7 @@ import {
 } from '../../features/attendance/display'
 import { MARKABLE_ATTENDANCE_STATUSES, type OrgDayEntry } from '../../features/attendance/types'
 import { markAttendanceFormSchema, type MarkAttendanceFormValues } from '../../features/attendance/validation'
+import { LoadingState } from '../../components/ui/Spinner'
 
 function MarkAttendanceForm({ entry, dateKey, onDone }: { entry: OrgDayEntry; dateKey: string; onDone: () => void }) {
   const markAttendance = useMarkAttendance()
@@ -44,7 +45,7 @@ function MarkAttendanceForm({ entry, dateKey, onDone }: { entry: OrgDayEntry; da
       })
       onDone()
     } catch (error) {
-      setServerError(error instanceof ApiError ? error.message : 'Could not save. Please try again.')
+      setServerError(errorMessage(error, 'Could not save. Please try again.'))
     }
   }
 
@@ -134,16 +135,12 @@ export function HrDayViewPage() {
       </div>
 
       {isPending ? (
-        <div className="flex justify-center py-8">
-          <span className="h-8 w-8 animate-spin rounded-full border-2 border-primary-100 border-t-primary-300" />
-        </div>
+        <LoadingState />
       ) : isError ? (
         <p className="text-sm text-error">
           {error instanceof ApiError && error.status === 403
             ? "You don't have access to the org day view."
-            : error instanceof ApiError
-              ? error.message
-              : 'Could not load attendance for this date.'}
+            : errorMessage(error, 'Could not load attendance for this date.')}
         </p>
       ) : data.attendance.length === 0 ? (
         <p className="text-sm text-secondary">No employees to show for this date.</p>

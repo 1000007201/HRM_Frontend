@@ -1,17 +1,14 @@
 import { Button } from '../../components/ui/Button'
-import { ApiError } from '../../lib/apiClient'
+import { ApiError, errorMessage } from '../../lib/apiClient'
 import { useCancelInvitation, useInvitations } from '../../features/employees/hooks'
+import { LoadingState } from '../../components/ui/Spinner'
 
 export function PendingInvitationsPage() {
   const { data, isPending, isError, error } = useInvitations()
   const cancelInvitation = useCancelInvitation()
 
   if (isPending) {
-    return (
-      <div className="flex justify-center py-8">
-        <span className="h-8 w-8 animate-spin rounded-full border-2 border-primary-100 border-t-primary-300" />
-      </div>
-    )
+    return <LoadingState />
   }
 
   if (isError) {
@@ -59,7 +56,7 @@ export function PendingInvitationsPage() {
       </table>
       {cancelInvitation.isError && (
         <p className="mt-3 text-sm text-error">
-          {cancelInvitation.error instanceof ApiError ? cancelInvitation.error.message : 'Could not cancel the invitation.'}
+          {errorMessage(cancelInvitation.error, 'Could not cancel the invitation.')}
         </p>
       )}
     </div>

@@ -6,6 +6,7 @@ import { ApiError } from '../../lib/apiClient'
 import { useActiveMemberRole } from '../../lib/useActiveMemberRole'
 import { useEmployees } from '../../features/employees/hooks'
 import { EMPLOYEE_ROLES, type EmployeeRole } from '../../features/employees/types'
+import { LoadingState } from '../../components/ui/Spinner'
 
 const PAGE_SIZE = 20
 
@@ -35,11 +36,7 @@ export function EmployeesListPage() {
   }, [data, searchTerm, roleFilter])
 
   if (isPending) {
-    return (
-      <div className="flex justify-center py-8">
-        <span className="h-8 w-8 animate-spin rounded-full border-2 border-primary-100 border-t-primary-300" />
-      </div>
-    )
+    return <LoadingState />
   }
 
   if (isError) {

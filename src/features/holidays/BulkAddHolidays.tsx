@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState } from 'react'
 import { Button } from '../../components/ui/Button'
-import { ApiError } from '../../lib/apiClient'
+import { errorMessage } from '../../lib/apiClient'
 import { useBulkCreateHolidays } from './hooks'
 import { parseHolidayRows } from './parseHolidayRows'
 
@@ -91,9 +91,7 @@ export function BulkAddHolidays({ year }: { year: number }) {
 
       {bulkCreateHolidays.isError && (
         <p className="mt-3 rounded-md border border-error bg-error-bg px-3 py-2 text-sm text-error">
-          {bulkCreateHolidays.error instanceof ApiError
-            ? bulkCreateHolidays.error.message
-            : 'Could not add the holidays. Please try again.'}
+          {errorMessage(bulkCreateHolidays.error, 'Could not add the holidays. Please try again.')}
         </p>
       )}
 

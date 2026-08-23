@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Button } from '../../components/ui/Button'
-import { ApiError } from '../../lib/apiClient'
+import { errorMessage } from '../../lib/apiClient'
 import { useCheckIn, useCheckOut, useMyMonth } from './hooks'
 import {
   formatClockTime,
@@ -11,6 +11,7 @@ import {
   toMonthKey,
 } from './display'
 import type { AttendanceStatus } from './types'
+import { Spinner } from '../../components/ui/Spinner'
 
 // The backend rejects check-in on these with a 409; reflecting them here means
 // the user sees why instead of being handed an error they can't act on.
@@ -49,7 +50,7 @@ export function CheckInOutWidget() {
   if (isPending) {
     return (
       <div className="flex justify-center rounded-md border border-card-border bg-white p-4">
-        <span className="h-6 w-6 animate-spin rounded-full border-2 border-primary-100 border-t-primary-300" />
+        <Spinner size="sm" />
       </div>
     )
   }
@@ -75,10 +76,8 @@ export function CheckInOutWidget() {
 
   const nonWorkingReason = today.status === null ? undefined : NON_WORKING_STATUSES[today.status]
   const activeMutation = checkOut.isPending || checkOut.isError ? checkOut : checkIn
-  const errorMessage = activeMutation.isError
-    ? activeMutation.error instanceof ApiError
-      ? activeMutation.error.message
-      : 'Something went wrong. Please try again.'
+  const punchError = activeMutation.isError
+    ? errorMessage(activeMutation.error, 'Something went wrong. Please try again.')
     : ''
 
   return (
@@ -116,7 +115,7 @@ export function CheckInOutWidget() {
         </div>
       )}
 
-      {errorMessage && <p className="mt-3 text-sm text-error">{errorMessage}</p>}
+      {punchError && <p className="mt-3 text-sm text-error">{punchError}</p>}
     </div>
   )
 }

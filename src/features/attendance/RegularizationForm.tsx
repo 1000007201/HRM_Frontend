@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form'
 import { Button } from '../../components/ui/Button'
 import { FormInput } from '../../components/ui/FormInput'
 import { FormSelect } from '../../components/ui/FormSelect'
-import { ApiError } from '../../lib/apiClient'
+import { errorMessage } from '../../lib/apiClient'
 import { useCreateRegularization } from './hooks'
 import { ATTENDANCE_STATUS_LABELS, formatDayLabel, toInstant } from './display'
 import { MARKABLE_ATTENDANCE_STATUSES, REGULARIZATION_TYPES } from './types'
@@ -51,7 +51,7 @@ export function RegularizationForm({ dateKey, onDone }: { dateKey: string; onDon
       onDone()
     } catch (error) {
       setServerError(
-        error instanceof ApiError ? error.message : 'Could not submit the regularization. Please try again.',
+        errorMessage(error, 'Could not submit the regularization. Please try again.'),
       )
     }
   }

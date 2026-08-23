@@ -7,6 +7,7 @@ import { Button } from '../../components/ui/Button'
 import { FormInput } from '../../components/ui/FormInput'
 import { authClient } from '../../lib/auth-client'
 import { MAX_PASSWORD_LENGTH, acceptInvitationSchema, type AcceptInvitationFormValues } from '../../features/auth/validation'
+import { Spinner } from '../../components/ui/Spinner'
 
 export function AcceptInvitationPage() {
   const { invitationId } = useParams<{ invitationId: string }>()
@@ -84,7 +85,7 @@ export function AcceptInvitationPage() {
     return (
       <AuthLayout>
         <div className="flex justify-center py-4">
-          <span className="h-8 w-8 animate-spin rounded-full border-2 border-primary-100 border-t-primary-300" />
+          <Spinner />
         </div>
       </AuthLayout>
     )

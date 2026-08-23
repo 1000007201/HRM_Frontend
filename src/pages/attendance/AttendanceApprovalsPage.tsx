@@ -1,5 +1,3 @@
-import { useState } from 'react'
-import { Button } from '../../components/ui/Button'
 import { ApiError } from '../../lib/apiClient'
 import { useApproveRegularization, usePendingRegularizations, useRejectRegularization } from '../../features/attendance/hooks'
 import {
@@ -10,25 +8,12 @@ import {
   statusLabel,
 } from '../../features/attendance/display'
 import type { PendingRegularization } from '../../features/attendance/types'
+import { LoadingState } from '../../components/ui/Spinner'
+import { DecisionActions } from '../../components/ui/DecisionActions'
 
 function DecisionRow({ regularization }: { regularization: PendingRegularization }) {
-  const [decisionKind, setDecisionKind] = useState<'approve' | 'reject' | null>(null)
-  const [decisionNote, setDecisionNote] = useState('')
   const approveRegularization = useApproveRegularization()
   const rejectRegularization = useRejectRegularization()
-
-  const mutation = decisionKind === 'reject' ? rejectRegularization : approveRegularization
-
-  async function confirmDecision() {
-    if (!decisionKind) return
-    const chosen = decisionKind === 'approve' ? approveRegularization : rejectRegularization
-    try {
-      await chosen.mutateAsync({ id: regularization.id, decisionNote: decisionNote.trim() || undefined })
-      setDecisionKind(null)
-    } catch {
-      // surfaced below via mutation.isError
-    }
-  }
 
   return (
     <tr className="border-b border-card-border align-top last:border-0">
@@ -48,39 +33,11 @@ function DecisionRow({ regularization }: { regularization: PendingRegularization
       </td>
       <td className="py-2 text-body">{regularization.reason}</td>
       <td className="py-2 text-right">
-        {decisionKind ? (
-          <div className="flex flex-col items-end gap-2">
-            <textarea
-              rows={2}
-              placeholder="Decision note (optional)"
-              value={decisionNote}
-              onChange={(event) => setDecisionNote(event.target.value)}
-              className="w-56 rounded-md border border-charcoal-100 px-2 py-1 text-sm text-body placeholder:text-placeholder focus:outline-none focus:ring-2 focus:ring-primary-300"
-            />
-            {mutation.isError && (
-              <p className="text-xs text-error">
-                {mutation.error instanceof ApiError ? mutation.error.message : 'Action failed.'}
-              </p>
-            )}
-            <div className="flex gap-2">
-              <Button variant="secondary" className="w-auto" onClick={() => setDecisionKind(null)}>
-                Cancel
-              </Button>
-              <Button className="w-auto" isLoading={mutation.isPending} onClick={confirmDecision}>
-                Confirm {decisionKind}
-              </Button>
-            </div>
-          </div>
-        ) : (
-          <div className="flex justify-end gap-2">
-            <Button variant="secondary" className="w-auto" onClick={() => setDecisionKind('reject')}>
-              Reject
-            </Button>
-            <Button className="w-auto" onClick={() => setDecisionKind('approve')}>
-              Approve
-            </Button>
-          </div>
-        )}
+        <DecisionActions
+          requestId={regularization.id}
+          approveMutation={approveRegularization}
+          rejectMutation={rejectRegularization}
+        />
       </td>
     </tr>
   )
@@ -90,11 +47,7 @@ export function AttendanceApprovalsPage() {
   const { data, isPending, isError, error } = usePendingRegularizations()
 
   if (isPending) {
-    return (
-      <div className="flex justify-center py-8">
-        <span className="h-8 w-8 animate-spin rounded-full border-2 border-primary-100 border-t-primary-300" />
-      </div>
-    )
+    return <LoadingState />
   }
 
   if (isError) {

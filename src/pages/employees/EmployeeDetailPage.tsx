@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { Button } from '../../components/ui/Button'
-import { ApiError } from '../../lib/apiClient'
+import { ApiError, errorMessage } from '../../lib/apiClient'
 import { useActiveMemberRole } from '../../lib/useActiveMemberRole'
 import { useEmployee, useInvitationLink, useInviteEmployee } from '../../features/employees/hooks'
+import { LoadingState } from '../../components/ui/Spinner'
 
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
@@ -44,7 +45,7 @@ function InviteToPortal({ employeeId }: { employeeId: string }) {
       )}
       {inviteEmployee.isError && (
         <p className="mb-3 text-sm text-error">
-          {inviteEmployee.error instanceof ApiError ? inviteEmployee.error.message : 'Could not send the invitation.'}
+          {errorMessage(inviteEmployee.error, 'Could not send the invitation.')}
         </p>
       )}
       {inviteEmployee.isSuccess && (
@@ -55,7 +56,7 @@ function InviteToPortal({ employeeId }: { employeeId: string }) {
           {invitationLink.data && <p className="mt-2 break-all text-xs text-secondary">{invitationLink.data.url}</p>}
           {invitationLink.isError && (
             <p className="mt-2 text-sm text-error">
-              {invitationLink.error instanceof ApiError ? invitationLink.error.message : 'Could not fetch the invite link.'}
+              {errorMessage(invitationLink.error, 'Could not fetch the invite link.')}
             </p>
           )}
         </div>
@@ -70,11 +71,7 @@ export function EmployeeDetailPage() {
   const { canManageEmployees } = useActiveMemberRole()
 
   if (isPending) {
-    return (
-      <div className="flex justify-center py-8">
-        <span className="h-8 w-8 animate-spin rounded-full border-2 border-primary-100 border-t-primary-300" />
-      </div>
-    )
+    return <LoadingState />
   }
 
   if (isError) {

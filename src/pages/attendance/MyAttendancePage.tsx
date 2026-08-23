@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Button } from '../../components/ui/Button'
 import { CheckInOutWidget } from '../../features/attendance/CheckInOutWidget'
-import { ApiError } from '../../lib/apiClient'
+import { errorMessage } from '../../lib/apiClient'
 import { useMyMonth } from '../../features/attendance/hooks'
 import {
   ATTENDANCE_STATUS_LABELS,
@@ -20,6 +20,7 @@ import {
 import { ATTENDANCE_STATUSES, type DerivedDay } from '../../features/attendance/types'
 import { MyRegularizationsList } from '../../features/attendance/MyRegularizationsList'
 import { RegularizationForm } from '../../features/attendance/RegularizationForm'
+import { LoadingState } from '../../components/ui/Spinner'
 
 const WEEKDAY_HEADINGS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
@@ -82,17 +83,13 @@ function MonthCalendar({ month }: { month: string }) {
   const [selectedDateKey, setSelectedDateKey] = useState<string | null>(null)
 
   if (isPending) {
-    return (
-      <div className="flex justify-center py-8">
-        <span className="h-8 w-8 animate-spin rounded-full border-2 border-primary-100 border-t-primary-300" />
-      </div>
-    )
+    return <LoadingState />
   }
 
   if (isError) {
     return (
       <p className="text-sm text-error">
-        {error instanceof ApiError ? error.message : 'Could not load your attendance. Please try again.'}
+        {errorMessage(error, 'Could not load your attendance. Please try again.')}
       </p>
     )
   }

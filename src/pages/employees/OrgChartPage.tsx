@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { ApiError } from '../../lib/apiClient'
 import { useOrgChart } from '../../features/employees/hooks'
 import type { OrgChartNode } from '../../features/employees/types'
+import { LoadingState } from '../../components/ui/Spinner'
 
 function OrgChartNodeCard({ node }: { node: OrgChartNode }) {
   const [isExpanded, setIsExpanded] = useState(true)
@@ -45,11 +46,7 @@ export function OrgChartPage() {
   const { data, isPending, isError, error } = useOrgChart()
 
   if (isPending) {
-    return (
-      <div className="flex justify-center py-8">
-        <span className="h-8 w-8 animate-spin rounded-full border-2 border-primary-100 border-t-primary-300" />
-      </div>
-    )
+    return <LoadingState />
   }
 
   if (isError) {

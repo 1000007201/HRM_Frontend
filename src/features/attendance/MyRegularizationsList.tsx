@@ -1,26 +1,16 @@
 import { Button } from '../../components/ui/Button'
-import { ApiError } from '../../lib/apiClient'
+import { errorMessage } from '../../lib/apiClient'
 import { useCancelRegularization, useMyRegularizations } from './hooks'
 import { describeRequestedChange, formatDayLabel } from './display'
-import type { RegularizationStatus } from './types'
-
-const REQUEST_STATUS_CLASSES: Record<RegularizationStatus, string> = {
-  PENDING: 'bg-warning-bg text-warning',
-  APPROVED: 'bg-success-bg text-success',
-  REJECTED: 'bg-error-bg text-error',
-  CANCELLED: 'bg-charcoal-50 text-secondary',
-}
+import { LoadingState } from '../../components/ui/Spinner'
+import { RequestStatusBadge } from '../../components/ui/RequestStatusBadge'
 
 export function MyRegularizationsList() {
   const { data, isPending, isError } = useMyRegularizations()
   const cancelRegularization = useCancelRegularization()
 
   if (isPending) {
-    return (
-      <div className="flex justify-center py-6">
-        <span className="h-6 w-6 animate-spin rounded-full border-2 border-primary-100 border-t-primary-300" />
-      </div>
-    )
+    return <LoadingState size="sm" padding="py-6" />
   }
 
   if (isError) {
@@ -35,9 +25,7 @@ export function MyRegularizationsList() {
     <div>
       {cancelRegularization.isError && (
         <p className="mb-3 text-sm text-error">
-          {cancelRegularization.error instanceof ApiError
-            ? cancelRegularization.error.message
-            : 'Could not cancel the request.'}
+          {errorMessage(cancelRegularization.error, 'Could not cancel the request.')}
         </p>
       )}
       <table className="w-full text-left text-sm">
@@ -59,11 +47,7 @@ export function MyRegularizationsList() {
               <td className="py-2 text-body">{describeRequestedChange(regularization)}</td>
               <td className="py-2 text-body">{regularization.reason}</td>
               <td className="py-2">
-                <span
-                  className={`rounded-full px-2 py-0.5 text-xs font-medium ${REQUEST_STATUS_CLASSES[regularization.status]}`}
-                >
-                  {regularization.status}
-                </span>
+                <RequestStatusBadge status={regularization.status} />
               </td>
               <td className="py-2 text-right">
                 {regularization.status === 'PENDING' && (
