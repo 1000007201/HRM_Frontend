@@ -1,4 +1,4 @@
-import { Button } from '../../components/auth/Button'
+import { Button } from '../../components/ui/Button'
 import { ApiError } from '../../lib/apiClient'
 import { useCancelInvitation, useInvitations } from '../../features/employees/hooks'
 

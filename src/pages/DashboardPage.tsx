@@ -1,4 +1,4 @@
-import { CheckInOutWidget } from '../components/attendance/CheckInOutWidget'
+import { CheckInOutWidget } from '../features/attendance/CheckInOutWidget'
 
 export function DashboardPage() {
   return (

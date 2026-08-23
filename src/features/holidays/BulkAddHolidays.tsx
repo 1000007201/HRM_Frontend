@@ -1,8 +1,8 @@
 import { useMemo, useRef, useState } from 'react'
-import { Button } from '../../components/auth/Button'
+import { Button } from '../../components/ui/Button'
 import { ApiError } from '../../lib/apiClient'
-import { useBulkCreateHolidays } from '../../features/holidays/hooks'
-import { parseHolidayRows } from '../../features/holidays/parseHolidayRows'
+import { useBulkCreateHolidays } from './hooks'
+import { parseHolidayRows } from './parseHolidayRows'
 
 // Matches the backend's bulkHolidaysSchema ceiling (z.array(...).max(366)) —
 // one calendar year's worth. Over that the whole payload is rejected, so it's

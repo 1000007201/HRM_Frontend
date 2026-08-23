@@ -3,10 +3,10 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import { AuthLayout } from '../../components/auth/AuthLayout'
-import { Button } from '../../components/auth/Button'
-import { FormInput } from '../../components/auth/FormInput'
+import { Button } from '../../components/ui/Button'
+import { FormInput } from '../../components/ui/FormInput'
 import { API_BASE_URL, authClient } from '../../lib/auth-client'
-import { MAX_PASSWORD_LENGTH, registerCompanySchema, type RegisterCompanyFormValues } from '../../lib/validation'
+import { MAX_PASSWORD_LENGTH, registerCompanySchema, type RegisterCompanyFormValues } from '../../features/auth/validation'
 
 export function RegisterCompanyPage() {
   const navigate = useNavigate()

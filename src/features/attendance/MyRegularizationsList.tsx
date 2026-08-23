@@ -1,8 +1,8 @@
-import { Button } from '../../components/auth/Button'
+import { Button } from '../../components/ui/Button'
 import { ApiError } from '../../lib/apiClient'
-import { useCancelRegularization, useMyRegularizations } from '../../features/attendance/hooks'
-import { describeRequestedChange, formatDayLabel } from '../../features/attendance/display'
-import type { RegularizationStatus } from '../../features/attendance/types'
+import { useCancelRegularization, useMyRegularizations } from './hooks'
+import { describeRequestedChange, formatDayLabel } from './display'
+import type { RegularizationStatus } from './types'
 
 const REQUEST_STATUS_CLASSES: Record<RegularizationStatus, string> = {
   PENDING: 'bg-warning-bg text-warning',

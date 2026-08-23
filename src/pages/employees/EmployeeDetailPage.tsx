@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { Button } from '../../components/auth/Button'
+import { Button } from '../../components/ui/Button'
 import { ApiError } from '../../lib/apiClient'
 import { useActiveMemberRole } from '../../lib/useActiveMemberRole'
 import { useEmployee, useInvitationLink, useInviteEmployee } from '../../features/employees/hooks'

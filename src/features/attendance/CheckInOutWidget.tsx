@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
-import { Button } from '../auth/Button'
+import { Button } from '../../components/ui/Button'
 import { ApiError } from '../../lib/apiClient'
-import { useCheckIn, useCheckOut, useMyMonth } from '../../features/attendance/hooks'
+import { useCheckIn, useCheckOut, useMyMonth } from './hooks'
 import {
   formatClockTime,
   formatWorkedMinutes,
@@ -9,8 +9,8 @@ import {
   statusLabel,
   todayDateKey,
   toMonthKey,
-} from '../../features/attendance/display'
-import type { AttendanceStatus } from '../../features/attendance/types'
+} from './display'
+import type { AttendanceStatus } from './types'
 
 // The backend rejects check-in on these with a 409; reflecting them here means
 // the user sees why instead of being handed an error they can't act on.

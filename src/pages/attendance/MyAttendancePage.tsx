@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { Button } from '../../components/auth/Button'
-import { CheckInOutWidget } from '../../components/attendance/CheckInOutWidget'
+import { Button } from '../../components/ui/Button'
+import { CheckInOutWidget } from '../../features/attendance/CheckInOutWidget'
 import { ApiError } from '../../lib/apiClient'
 import { useMyMonth } from '../../features/attendance/hooks'
 import {
@@ -18,8 +18,8 @@ import {
   toUtcDate,
 } from '../../features/attendance/display'
 import { ATTENDANCE_STATUSES, type DerivedDay } from '../../features/attendance/types'
-import { MyRegularizationsList } from './MyRegularizationsList'
-import { RegularizationForm } from './RegularizationForm'
+import { MyRegularizationsList } from '../../features/attendance/MyRegularizationsList'
+import { RegularizationForm } from '../../features/attendance/RegularizationForm'
 
 const WEEKDAY_HEADINGS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 

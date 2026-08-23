@@ -1,9 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Fragment, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { Button } from '../../components/auth/Button'
-import { FormInput } from '../../components/auth/FormInput'
-import { FormSelect } from '../../components/auth/FormSelect'
+import { Button } from '../../components/ui/Button'
+import { FormInput } from '../../components/ui/FormInput'
+import { FormSelect } from '../../components/ui/FormSelect'
 import { ApiError } from '../../lib/apiClient'
 import { useMarkAttendance, useOrgDay } from '../../features/attendance/hooks'
 import {

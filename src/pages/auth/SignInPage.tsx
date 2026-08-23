@@ -3,10 +3,10 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { Link, useLocation } from 'react-router-dom'
 import { AuthLayout } from '../../components/auth/AuthLayout'
-import { Button } from '../../components/auth/Button'
-import { FormInput } from '../../components/auth/FormInput'
+import { Button } from '../../components/ui/Button'
+import { FormInput } from '../../components/ui/FormInput'
 import { authClient } from '../../lib/auth-client'
-import { signInSchema, type SignInFormValues } from '../../lib/validation'
+import { signInSchema, type SignInFormValues } from '../../features/auth/validation'
 
 export function SignInPage() {
   const location = useLocation()

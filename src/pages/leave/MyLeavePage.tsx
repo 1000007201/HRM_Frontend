@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Button } from '../../components/auth/Button'
+import { Button } from '../../components/ui/Button'
 import { ApiError } from '../../lib/apiClient'
 import { useCancelLeaveRequest, useMyLeaveBalances, useMyLeaveRequests } from '../../features/leave/hooks'
 import type { LeaveStatus } from '../../features/leave/types'

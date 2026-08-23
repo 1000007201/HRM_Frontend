@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Button } from '../../components/auth/Button'
+import { Button } from '../../components/ui/Button'
 import { ApiError } from '../../lib/apiClient'
 import { useApproveLeaveRequest, usePendingLeaveRequests, useRejectLeaveRequest } from '../../features/leave/hooks'
 import type { PendingLeaveRequest } from '../../features/leave/types'

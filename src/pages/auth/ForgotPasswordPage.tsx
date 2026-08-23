@@ -3,10 +3,10 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { Link } from 'react-router-dom'
 import { AuthLayout } from '../../components/auth/AuthLayout'
-import { Button } from '../../components/auth/Button'
-import { FormInput } from '../../components/auth/FormInput'
+import { Button } from '../../components/ui/Button'
+import { FormInput } from '../../components/ui/FormInput'
 import { authClient } from '../../lib/auth-client'
-import { forgotPasswordSchema, type ForgotPasswordFormValues } from '../../lib/validation'
+import { forgotPasswordSchema, type ForgotPasswordFormValues } from '../../features/auth/validation'
 
 type SubmitStatus = 'idle' | 'success' | 'rateLimited' | 'networkError'
 

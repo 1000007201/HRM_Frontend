@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Button } from '../../components/auth/Button'
+import { Button } from '../../components/ui/Button'
 import { ApiError } from '../../lib/apiClient'
 import { useApproveRegularization, usePendingRegularizations, useRejectRegularization } from '../../features/attendance/hooks'
 import {

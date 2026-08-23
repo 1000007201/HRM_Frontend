@@ -3,10 +3,10 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom'
 import { AuthLayout } from '../../components/auth/AuthLayout'
-import { Button } from '../../components/auth/Button'
-import { FormInput } from '../../components/auth/FormInput'
+import { Button } from '../../components/ui/Button'
+import { FormInput } from '../../components/ui/FormInput'
 import { authClient } from '../../lib/auth-client'
-import { MAX_PASSWORD_LENGTH, resetPasswordSchema, type ResetPasswordFormValues } from '../../lib/validation'
+import { MAX_PASSWORD_LENGTH, resetPasswordSchema, type ResetPasswordFormValues } from '../../features/auth/validation'
 
 type SubmitStatus = 'idle' | 'rateLimited' | 'invalidToken' | 'networkError'
 

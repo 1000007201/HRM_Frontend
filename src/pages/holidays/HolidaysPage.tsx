@@ -1,14 +1,14 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { Button } from '../../components/auth/Button'
-import { FormInput } from '../../components/auth/FormInput'
+import { Button } from '../../components/ui/Button'
+import { FormInput } from '../../components/ui/FormInput'
 import { ApiError } from '../../lib/apiClient'
 import { useActiveMemberRole } from '../../lib/useActiveMemberRole'
 import { useCreateHoliday, useDeleteHoliday, useHolidays } from '../../features/holidays/hooks'
 import type { Holiday } from '../../features/holidays/types'
 import { holidayFormSchema, type HolidayFormValues } from '../../features/holidays/validation'
-import { BulkAddHolidays } from './BulkAddHolidays'
+import { BulkAddHolidays } from '../../features/holidays/BulkAddHolidays'
 
 // timeZone: 'UTC' throughout — holiday dates are UTC-midnight calendar dates,
 // so formatting them in the viewer's local zone would shift them a day west of

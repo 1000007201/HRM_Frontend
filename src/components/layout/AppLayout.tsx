@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
-import { Button } from '../auth/Button'
+import { Button } from '../ui/Button'
 import { authClient } from '../../lib/auth-client'
 import { useActiveMemberRole } from '../../lib/useActiveMemberRole'
 

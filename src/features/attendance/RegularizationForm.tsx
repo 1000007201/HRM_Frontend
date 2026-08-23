@@ -1,14 +1,14 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { Button } from '../../components/auth/Button'
-import { FormInput } from '../../components/auth/FormInput'
-import { FormSelect } from '../../components/auth/FormSelect'
+import { Button } from '../../components/ui/Button'
+import { FormInput } from '../../components/ui/FormInput'
+import { FormSelect } from '../../components/ui/FormSelect'
 import { ApiError } from '../../lib/apiClient'
-import { useCreateRegularization } from '../../features/attendance/hooks'
-import { ATTENDANCE_STATUS_LABELS, formatDayLabel, toInstant } from '../../features/attendance/display'
-import { MARKABLE_ATTENDANCE_STATUSES, REGULARIZATION_TYPES } from '../../features/attendance/types'
-import { regularizationFormSchema, type RegularizationFormValues } from '../../features/attendance/validation'
+import { useCreateRegularization } from './hooks'
+import { ATTENDANCE_STATUS_LABELS, formatDayLabel, toInstant } from './display'
+import { MARKABLE_ATTENDANCE_STATUSES, REGULARIZATION_TYPES } from './types'
+import { regularizationFormSchema, type RegularizationFormValues } from './validation'
 
 const TYPE_LABELS: Record<(typeof REGULARIZATION_TYPES)[number], string> = {
   MISSING_PUNCH: 'Missing punch',
