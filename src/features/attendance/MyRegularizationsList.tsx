@@ -18,7 +18,7 @@ export function MyRegularizationsList() {
   }
 
   if (data.regularizations.length === 0) {
-    return <p className="text-sm text-secondary">No regularization requests yet.</p>
+    return <p className="text-sm text-muted">No regularization requests yet.</p>
   }
 
   return (
@@ -30,7 +30,7 @@ export function MyRegularizationsList() {
       )}
       <table className="w-full text-left text-sm">
         <thead>
-          <tr className="border-b border-card-border text-xs text-secondary">
+          <tr className="border-b border-border text-xs text-muted">
             <th className="py-2 font-medium">Date</th>
             <th className="py-2 font-medium">Type</th>
             <th className="py-2 font-medium">Requested</th>
@@ -41,11 +41,11 @@ export function MyRegularizationsList() {
         </thead>
         <tbody>
           {data.regularizations.map((regularization) => (
-            <tr key={regularization.id} className="border-b border-card-border last:border-0">
-              <td className="py-2 text-body">{formatDayLabel(regularization.date)}</td>
-              <td className="py-2 text-body">{regularization.type.replace('_', ' ').toLowerCase()}</td>
-              <td className="py-2 text-body">{describeRequestedChange(regularization)}</td>
-              <td className="py-2 text-body">{regularization.reason}</td>
+            <tr key={regularization.id} className="border-b border-border last:border-0 hover:bg-row-hover">
+              <td className="py-2 text-ink-2">{formatDayLabel(regularization.date)}</td>
+              <td className="py-2 text-ink-2">{regularization.type.replace('_', ' ').toLowerCase()}</td>
+              <td className="py-2 text-ink-2">{describeRequestedChange(regularization)}</td>
+              <td className="py-2 text-ink-2">{regularization.reason}</td>
               <td className="py-2">
                 <RequestStatusBadge status={regularization.status} />
               </td>
@@ -53,7 +53,7 @@ export function MyRegularizationsList() {
                 {regularization.status === 'PENDING' && (
                   <Button
                     variant="secondary"
-                    className="w-auto"
+                    fullWidth={false}
                     isLoading={cancelRegularization.isPending && cancelRegularization.variables === regularization.id}
                     onClick={() => cancelRegularization.mutate(regularization.id)}
                   >

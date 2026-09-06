@@ -12,7 +12,7 @@ export function Spinner({ size = 'md' }: SpinnerProps) {
     <span
       role="status"
       aria-label="Loading"
-      className={`${SIZE_CLASSES[size]} animate-spin rounded-full border-2 border-primary-100 border-t-primary-300`}
+      className={`${SIZE_CLASSES[size]} animate-spin rounded-full border-2 border-accent border-t-primary`}
     />
   )
 }

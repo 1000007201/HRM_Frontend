@@ -3,11 +3,17 @@ import type { ButtonHTMLAttributes } from 'react'
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary'
   isLoading?: boolean
+  // Unlike a <div>, a <button> never stretches to fill its container just
+  // from display:flex/block — it needs an explicit width. Defaulting this to
+  // true keeps every existing full-width caller (form submit buttons) working
+  // with no changes; callers that want a compact inline button pass `false`.
+  fullWidth?: boolean
 }
 
 export function Button({
   variant = 'primary',
   isLoading = false,
+  fullWidth = true,
   disabled,
   children,
   className,
@@ -15,13 +21,15 @@ export function Button({
 }: ButtonProps) {
   const variantClasses =
     variant === 'primary'
-      ? 'bg-primary-300 text-white hover:bg-primary-400'
-      : 'bg-white text-body border border-charcoal-100 hover:bg-charcoal-50'
+      ? 'bg-primary text-white hover:bg-primary-hover'
+      : 'bg-white text-ink-2 border border-border hover:bg-row-hover'
 
   return (
     <button
       disabled={disabled || isLoading}
-      className={`flex w-full items-center justify-center gap-2 rounded-md px-4 py-2 font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${variantClasses} ${className ?? ''}`}
+      className={`flex items-center justify-center gap-2 rounded-md px-3.5 py-1.5 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
+        fullWidth ? 'w-full' : ''
+      } ${variantClasses} ${className ?? ''}`}
       {...buttonProps}
     >
       {isLoading && (

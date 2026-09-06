@@ -33,11 +33,11 @@ export function ForgotPasswordPage() {
   if (status === 'success') {
     return (
       <AuthLayout>
-        <h1 className="mb-2 text-lg font-semibold text-heading">Check your email</h1>
-        <p className="text-sm text-body">
+        <h1 className="mb-2 text-lg font-semibold text-ink">Check your email</h1>
+        <p className="text-sm text-ink-2">
           If an account with that email exists, we've sent a reset link.
         </p>
-        <Link to="/login" className="mt-4 block text-center text-sm text-primary-300 hover:underline">
+        <Link to="/login" className="mt-4 block text-center text-sm text-primary hover:underline">
           Back to sign in
         </Link>
       </AuthLayout>
@@ -46,12 +46,12 @@ export function ForgotPasswordPage() {
 
   return (
     <AuthLayout>
-      <h1 className="mb-2 text-lg font-semibold text-heading">Forgot password</h1>
-      <p className="mb-6 text-sm text-secondary">
+      <h1 className="mb-2 text-lg font-semibold text-ink">Forgot password</h1>
+      <p className="mb-6 text-sm text-muted">
         Enter your email and we'll send you a link to reset your password.
       </p>
       {status === 'rateLimited' && (
-        <p className="mb-4 rounded-md border border-warning bg-warning-bg px-3 py-2 text-sm text-body">
+        <p className="mb-4 rounded-md border border-warning bg-warning-bg px-3 py-2 text-sm text-ink-2">
           Too many attempts. Please wait a moment and try again.
         </p>
       )}
@@ -73,7 +73,7 @@ export function ForgotPasswordPage() {
           Send reset link
         </Button>
       </form>
-      <Link to="/login" className="mt-4 block text-center text-sm text-primary-300 hover:underline">
+      <Link to="/login" className="mt-4 block text-center text-sm text-primary hover:underline">
         Back to sign in
       </Link>
     </AuthLayout>

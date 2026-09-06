@@ -52,9 +52,9 @@ export function ResetPasswordPage() {
   if (status === 'invalidToken') {
     return (
       <AuthLayout>
-        <h1 className="mb-2 text-lg font-semibold text-heading">Link expired</h1>
-        <p className="text-sm text-body">This reset link is invalid or has expired.</p>
-        <Link to="/forgot-password" className="mt-4 block text-center text-sm text-primary-300 hover:underline">
+        <h1 className="mb-2 text-lg font-semibold text-ink">Link expired</h1>
+        <p className="text-sm text-ink-2">This reset link is invalid or has expired.</p>
+        <Link to="/forgot-password" className="mt-4 block text-center text-sm text-primary hover:underline">
           Request a new link
         </Link>
       </AuthLayout>
@@ -63,9 +63,9 @@ export function ResetPasswordPage() {
 
   return (
     <AuthLayout>
-      <h1 className="mb-6 text-lg font-semibold text-heading">Reset password</h1>
+      <h1 className="mb-6 text-lg font-semibold text-ink">Reset password</h1>
       {status === 'rateLimited' && (
-        <p className="mb-4 rounded-md border border-warning bg-warning-bg px-3 py-2 text-sm text-body">
+        <p className="mb-4 rounded-md border border-warning bg-warning-bg px-3 py-2 text-sm text-ink-2">
           Too many attempts. Please wait a moment and try again.
         </p>
       )}
@@ -83,7 +83,7 @@ export function ResetPasswordPage() {
           errorMessage={errors.newPassword?.message}
           {...register('newPassword')}
         />
-        <p className="-mt-3 mb-4 text-xs text-secondary">
+        <p className="-mt-3 mb-4 text-xs text-muted">
           {newPassword.length}/{MAX_PASSWORD_LENGTH} characters
         </p>
         <FormInput

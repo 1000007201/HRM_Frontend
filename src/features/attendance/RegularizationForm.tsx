@@ -57,8 +57,8 @@ export function RegularizationForm({ dateKey, onDone }: { dateKey: string; onDon
   }
 
   return (
-    <form onSubmit={handleSubmit(handleFormSubmit)} className="mt-4 rounded-md border border-card-border bg-white p-4">
-      <p className="mb-3 text-sm font-medium text-heading">Regularize {formatDayLabel(dateKey)}</p>
+    <form onSubmit={handleSubmit(handleFormSubmit)} className="mt-4 rounded-2xl border border-border bg-white p-4">
+      <p className="mb-3 text-sm font-medium text-ink">Regularize {formatDayLabel(dateKey)}</p>
       {serverError && (
         <p className="mb-3 rounded-md border border-error bg-error-bg px-3 py-2 text-sm text-error">{serverError}</p>
       )}
@@ -105,24 +105,24 @@ export function RegularizationForm({ dateKey, onDone }: { dateKey: string; onDon
       </FormSelect>
 
       <div className="mb-4">
-        <label htmlFor="reason" className="mb-1 block text-sm font-medium text-body">
+        <label htmlFor="reason" className="mb-1 block text-sm font-medium text-ink-2">
           Reason
         </label>
         <textarea
           id="reason"
           rows={3}
           disabled={isSubmitting}
-          className="w-full rounded-md border border-charcoal-100 px-3 py-2 text-body placeholder:text-placeholder focus:outline-none focus:ring-2 focus:ring-primary-300"
+          className="w-full rounded-md border border-border px-3 py-2 text-ink-2 placeholder:text-muted focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
           {...register('reason')}
         />
         {errors.reason && <p className="mt-1 text-sm text-error">{errors.reason.message}</p>}
       </div>
 
       <div className="flex gap-2">
-        <Button type="submit" className="w-auto" isLoading={isSubmitting}>
+        <Button type="submit" fullWidth={false} isLoading={isSubmitting}>
           Submit request
         </Button>
-        <Button type="button" variant="secondary" className="w-auto" onClick={onDone}>
+        <Button type="button" variant="secondary" fullWidth={false} onClick={onDone}>
           Cancel
         </Button>
       </div>

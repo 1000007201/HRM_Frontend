@@ -13,21 +13,21 @@ export function PendingInvitationsPage() {
 
   if (isError) {
     if (error instanceof ApiError && error.status === 403) {
-      return <p className="text-sm text-secondary">You don't have access to pending invitations.</p>
+      return <p className="text-sm text-muted">You don't have access to pending invitations.</p>
     }
     return <p className="text-sm text-error">Could not load pending invitations. Please try again.</p>
   }
 
   if (data.invitations.length === 0) {
-    return <p className="text-sm text-secondary">No pending invitations.</p>
+    return <p className="text-sm text-muted">No pending invitations.</p>
   }
 
   return (
     <div>
-      <h1 className="mb-6 text-lg font-semibold text-heading">Pending invitations</h1>
+      <h1 className="mb-6 text-lg font-semibold text-ink">Pending invitations</h1>
       <table className="w-full text-left text-sm">
         <thead>
-          <tr className="border-b border-card-border text-xs text-secondary">
+          <tr className="border-b border-border text-xs text-muted">
             <th className="py-2 font-medium">Email</th>
             <th className="py-2 font-medium">Role</th>
             <th className="py-2 font-medium">Expires</th>
@@ -36,14 +36,14 @@ export function PendingInvitationsPage() {
         </thead>
         <tbody>
           {data.invitations.map((invitation) => (
-            <tr key={invitation.id} className="border-b border-card-border last:border-0">
-              <td className="py-2 text-body">{invitation.email}</td>
-              <td className="py-2 text-body">{invitation.role ?? '—'}</td>
-              <td className="py-2 text-body">{new Date(invitation.expiresAt).toLocaleDateString()}</td>
+            <tr key={invitation.id} className="border-b border-border last:border-0 hover:bg-row-hover">
+              <td className="py-2 text-ink-2">{invitation.email}</td>
+              <td className="py-2 text-ink-2">{invitation.role ?? '—'}</td>
+              <td className="py-2 text-ink-2">{new Date(invitation.expiresAt).toLocaleDateString()}</td>
               <td className="py-2 text-right">
                 <Button
                   variant="secondary"
-                  className="w-auto"
+                  fullWidth={false}
                   isLoading={cancelInvitation.isPending && cancelInvitation.variables === invitation.id}
                   onClick={() => cancelInvitation.mutate(invitation.id)}
                 >

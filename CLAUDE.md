@@ -36,15 +36,39 @@ style SPA behind authentication — not a public/marketing site.
   No external UI kit yet; shadcn/ui is the candidate if a kit is wanted later —
   decide before scattering ad-hoc component patterns.
 
-## Design tokens (from the dashboard work — do not invent new colors)
+## Design tokens (coffee theme — do not invent new colors)
 
-- Primary (sky blue): `#1A9FE0`. Ramp: 50 `#E8F4FC`, 100 `#B3DCFA`, 200 `#5BB8F0`,
-  300 `#1A9FE0`, 400 `#0C6BA8`.
-- Charcoal: `#2C2C2C`. Ramp: 50 `#EAEEF2`, 100 `#C8CDD3`, 200 `#6B6F75`,
-  300 `#3D3D3D`, 400 `#2C2C2C`. Used for the sidebar.
-- Silver gray page background: `#EAEEF2`. White cards. Black text
-  (`#111111`/`#333333`/`#666666`/`#999999`).
-- Semantic: success `#16A34A`, warning `#EAB308`, error `#DC2626`, info `#8B5CF6`.
+Defined once as CSS variables in `src/index.css` (Tailwind v4 `@theme`).
+Components reference the semantic utility classes (`bg-primary`, `text-ink`,
+`border-border`, ...) — never raw hex, never a component-local color.
+
+- Canvas (page bg) `#FBFAF8`. Panel/card/sidebar `#FFFFFF`. Border `#EFEAE4`.
+- Primary (coffee) `#8A5D3B`, hover `#754C2E` — buttons, links, key actions.
+- Accent (apricot) `#E0A878` — avatars, chart fills, focus rings, highlights.
+  Text placed on accent must be dark (`text-ink`), not white — white-on-accent
+  is ~2:1 contrast.
+- Active nav pill: bg `#F6E7DD`, ink = `primary` (`#8A5D3B`). The originally
+  specced ink `#9A6A45` measured ~3.85:1 on that bg (below AA); reusing
+  `primary` hits ~4.7:1.
+- Row hover tint `#F5ECE3`.
+- Text: ink (headings) `#3F3128`, ink-2 (body) `#6F6156`, muted `#7D7062`.
+  Muted was speced as `#A89A8D` but that's ~2.7:1 on white and muted is used
+  as real label/empty-state text (not just decorative) — darkened to ~4.8:1.
+- Role pills (ADMIN/HR/MANAGER/EMPLOYEE): neutral-warm, bg `#F1ECE5`, ink
+  `#8A6F57` (`neutral-ink`). Keep role pills neutral — the coffee/primary
+  color stays reserved for actions.
+- Status (leave + attendance badges, attendance calendar) — kept mutually
+  distinguishable and harmonized to the warm palette. Measured contrast is
+  noted since several sit under the 4.5:1 AA line for normal text at their
+  specced values; left as speced (this is a deliberate "keep them visually
+  distinct from each other" palette) rather than unilaterally redesigned:
+  - success `#3F8F5B` / bg `#E8F2EA` (~3.5:1) — Active / Present / Approved
+  - warning `#C98A2E` / bg `#F7ECD6` (~2.5:1) — Half-day / Pending
+  - error `#B4472E` / bg `#F6E1DA` (~4.3:1) — Absent / Rejected
+  - on-leave `#8A6F57` / bg `#EFE7DF` (~3.8:1) — On leave
+  - neutral `#EFEAE4` / ink `#8A6F57` — Holiday / Week off / Cancelled
+  If any of these need to hit strict AA, darken that status's ink — same
+  approach used for muted/active-pill-ink above.
 
 ## Commands
 
@@ -101,11 +125,27 @@ does. No single letters (except loop indices `i`/`j`), no vague names like
   in this repo. Anything sensitive stays on the backend.
 - Commit `.env.example`, never `.env`.
 
+## Git — never push without being told
+
+**Do not run `git push` unless I explicitly ask for it in that message.**
+This is absolute: not after finishing a feature, not after a green build, not
+because the work "looks done", and not because I asked you to push something
+earlier in the session — permission does not carry over between requests.
+
+Same for `git commit`: only when I ask. Finish the work, leave it in the
+working tree, and tell me what's uncommitted. I'll decide when it goes up.
+
+When I *do* ask to push:
+- If we're on `main`, say so and ask before branching vs committing directly —
+  don't quietly push to a branch I then can't find on GitHub's default view.
+- Show me what's staged before committing, and never stage `.env`.
+
 ## Before you call a task done
 
 1. `npm run typecheck` passes.
 2. `npm run build` succeeds.
 3. New config values are added to `.env.example` (with `VITE_` prefix).
+4. Report what changed and leave it uncommitted — see the git rule above.
 
 ## Don'ts
 
@@ -113,3 +153,4 @@ does. No single letters (except loop indices `i`/`j`), no vague names like
 - Don't implement auth/session logic by hand — use the Better Auth React client.
 - Don't call the database or hold secrets here — that's the backend's job.
 - Don't add features beyond the current stage without being asked.
+- Don't `git push` (or `git commit`) unless I asked in that same message.

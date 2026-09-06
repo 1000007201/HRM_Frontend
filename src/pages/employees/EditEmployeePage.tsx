@@ -29,10 +29,10 @@ export function EditEmployeePage() {
   if (employee.role === 'ADMIN') {
     return (
       <div>
-        <Link to={`/employees/${employee.id}`} className="mb-4 inline-block text-sm text-primary-300 hover:underline">
+        <Link to={`/employees/${employee.id}`} className="mb-4 inline-block text-sm text-primary hover:underline">
           ← Back to employee
         </Link>
-        <p className="text-sm text-body">The organization owner's record can't be edited here.</p>
+        <p className="text-sm text-ink-2">The organization owner's record can't be edited here.</p>
       </div>
     )
   }
@@ -57,10 +57,10 @@ export function EditEmployeePage() {
 
   return (
     <div className="max-w-lg">
-      <Link to={`/employees/${id}`} className="mb-4 inline-block text-sm text-primary-300 hover:underline">
+      <Link to={`/employees/${id}`} className="mb-4 inline-block text-sm text-primary hover:underline">
         ← Back to employee
       </Link>
-      <h1 className="mb-6 text-lg font-semibold text-heading">Edit employee</h1>
+      <h1 className="mb-6 text-lg font-semibold text-ink">Edit employee</h1>
       <EmployeeForm
         submitLabel="Save changes"
         serverError={serverError}

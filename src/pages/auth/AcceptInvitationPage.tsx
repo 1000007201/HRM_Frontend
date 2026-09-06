@@ -75,8 +75,8 @@ export function AcceptInvitationPage() {
   if (!invitationId) {
     return (
       <AuthLayout>
-        <h1 className="mb-2 text-lg font-semibold text-heading">Invitation not found</h1>
-        <p className="text-sm text-body">This invitation link is missing its invitation ID.</p>
+        <h1 className="mb-2 text-lg font-semibold text-ink">Invitation not found</h1>
+        <p className="text-sm text-ink-2">This invitation link is missing its invitation ID.</p>
       </AuthLayout>
     )
   }
@@ -94,8 +94,8 @@ export function AcceptInvitationPage() {
   if (needsEmailVerification) {
     return (
       <AuthLayout>
-        <h1 className="mb-2 text-lg font-semibold text-heading">Verify your email</h1>
-        <p className="text-sm text-body">
+        <h1 className="mb-2 text-lg font-semibold text-ink">Verify your email</h1>
+        <p className="text-sm text-ink-2">
           Check your inbox for a verification link, then open this invitation link again to finish joining.
         </p>
       </AuthLayout>
@@ -104,7 +104,7 @@ export function AcceptInvitationPage() {
 
   return (
     <AuthLayout>
-      <h1 className="mb-2 text-lg font-semibold text-heading">Join your organization</h1>
+      <h1 className="mb-2 text-lg font-semibold text-ink">Join your organization</h1>
       {errorMessage && (
         <p className="mb-4 rounded-md border border-error bg-error-bg px-3 py-2 text-sm text-error">
           {errorMessage}
@@ -112,14 +112,14 @@ export function AcceptInvitationPage() {
       )}
       {session ? (
         <>
-          <p className="mb-6 text-sm text-secondary">Signed in as {session.user.email}.</p>
+          <p className="mb-6 text-sm text-muted">Signed in as {session.user.email}.</p>
           <Button onClick={handleAcceptAsSignedInUser} isLoading={isAccepting}>
             Accept invitation
           </Button>
         </>
       ) : (
         <>
-          <p className="mb-6 text-sm text-secondary">
+          <p className="mb-6 text-sm text-muted">
             Create your account using the email address this invitation was sent to.
           </p>
           <form onSubmit={handleSubmit(onCreateAccountSubmit)}>
@@ -146,7 +146,7 @@ export function AcceptInvitationPage() {
               errorMessage={errors.password?.message}
               {...register('password')}
             />
-            <p className="-mt-3 mb-4 text-xs text-secondary">
+            <p className="-mt-3 mb-4 text-xs text-muted">
               {password.length}/{MAX_PASSWORD_LENGTH} characters
             </p>
             <FormInput

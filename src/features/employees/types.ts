@@ -60,6 +60,33 @@ export interface InvitationLink {
   invitation: { id: string; email: string; role: string | null; expiresAt: string }
 }
 
+export const EMPLOYEE_DOCUMENT_TYPES = [
+  'ADDRESS_PROOF',
+  'MARKSHEET',
+  'IDENTITY_PROOF',
+  'EXPERIENCE_CERTIFICATE',
+  'RELIEVING_LETTER',
+] as const
+export type EmployeeDocumentType = (typeof EMPLOYEE_DOCUMENT_TYPES)[number]
+
+export const EMPLOYEE_DOCUMENT_TYPE_LABELS: Record<EmployeeDocumentType, string> = {
+  ADDRESS_PROOF: 'Address proof',
+  MARKSHEET: 'Marksheet / degree',
+  IDENTITY_PROOF: 'Identity proof',
+  EXPERIENCE_CERTIFICATE: 'Experience certificate',
+  RELIEVING_LETTER: 'Relieving letter',
+}
+
+export interface EmployeeDocument {
+  id: string
+  employeeId: string
+  type: EmployeeDocumentType
+  fileName: string
+  mimeType: string
+  fileSize: number
+  createdAt: string
+}
+
 export interface OrgChartNode {
   id: string
   fullName: string

@@ -9,16 +9,16 @@ function DecisionRow({ leaveRequest }: { leaveRequest: PendingLeaveRequest }) {
   const rejectLeaveRequest = useRejectLeaveRequest()
 
   return (
-    <tr className="border-b border-card-border last:border-0 align-top">
-      <td className="py-2 text-body">{leaveRequest.employee.fullName}</td>
-      <td className="py-2 text-body">{leaveRequest.leaveType.name}</td>
-      <td className="py-2 text-body">
+    <tr className="border-b border-border last:border-0 align-top hover:bg-row-hover">
+      <td className="py-2 text-ink-2">{leaveRequest.employee.fullName}</td>
+      <td className="py-2 text-ink-2">{leaveRequest.leaveType.name}</td>
+      <td className="py-2 text-ink-2">
         {new Date(leaveRequest.startDate).toLocaleDateString()}
         {leaveRequest.startDate !== leaveRequest.endDate && ` – ${new Date(leaveRequest.endDate).toLocaleDateString()}`}
         {leaveRequest.isHalfDay && ' (half-day)'}
       </td>
-      <td className="py-2 text-body">{leaveRequest.workingDays}</td>
-      <td className="py-2 text-body">{leaveRequest.reason ?? '—'}</td>
+      <td className="py-2 text-ink-2">{leaveRequest.workingDays}</td>
+      <td className="py-2 text-ink-2">{leaveRequest.reason ?? '—'}</td>
       <td className="py-2 text-right">
         <DecisionActions
           requestId={leaveRequest.id}
@@ -39,20 +39,20 @@ export function LeaveApprovalsPage() {
 
   if (isError) {
     if (error instanceof ApiError && error.status === 403) {
-      return <p className="text-sm text-secondary">You don't have access to leave approvals.</p>
+      return <p className="text-sm text-muted">You don't have access to leave approvals.</p>
     }
     return <p className="text-sm text-error">Could not load pending leave requests. Please try again.</p>
   }
 
   return (
     <div>
-      <h1 className="mb-6 text-lg font-semibold text-heading">Leave approvals</h1>
+      <h1 className="mb-6 text-lg font-semibold text-ink">Leave approvals</h1>
       {data.leaveRequests.length === 0 ? (
-        <p className="text-sm text-secondary">No pending leave requests.</p>
+        <p className="text-sm text-muted">No pending leave requests.</p>
       ) : (
         <table className="w-full text-left text-sm">
           <thead>
-            <tr className="border-b border-card-border text-xs text-secondary">
+            <tr className="border-b border-border text-xs text-muted">
               <th className="py-2 font-medium">Requester</th>
               <th className="py-2 font-medium">Type</th>
               <th className="py-2 font-medium">Dates</th>

@@ -28,13 +28,17 @@ interface ApiEnvelope<TResponse> {
 }
 
 export async function apiFetch<TResponse>(path: string, init?: RequestInit): Promise<TResponse> {
+  // FormData (file uploads) must NOT get a manual Content-Type — fetch sets
+  // its own with the multipart boundary, and overriding it breaks parsing.
+  const isFormData = init?.body instanceof FormData
+
   let response: Response
   try {
     response = await fetch(`${API_BASE_URL}${path}`, {
       credentials: 'include',
       ...init,
       headers: {
-        ...(init?.body ? { 'Content-Type': 'application/json' } : {}),
+        ...(init?.body && !isFormData ? { 'Content-Type': 'application/json' } : {}),
         ...init?.headers,
       },
     })

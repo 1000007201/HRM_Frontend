@@ -60,28 +60,31 @@ export function EmployeeForm({ defaultValues, excludeEmployeeId, serverError, su
       </FormSelect>
       <FormInput
         id="designation"
-        label="Designation (optional)"
+        label="Designation"
         disabled={isSubmitting}
         errorMessage={errors.designation?.message}
         {...register('designation')}
       />
       <FormSelect
         id="managerId"
-        label="Manager (optional)"
+        label="Reporting Person (optional)"
+        openDirection="up"
         disabled={isSubmitting}
         errorMessage={errors.managerId?.message}
         {...register('managerId')}
       >
-        <option value="">No manager</option>
+        <option value="">No reporting person</option>
         {managers.map((manager) => (
           <option key={manager.id} value={manager.id}>
             {manager.fullName}
           </option>
         ))}
       </FormSelect>
-      <Button type="submit" isLoading={isSubmitting}>
-        {submitLabel}
-      </Button>
+      <div className="mt-6 flex justify-end border-t border-border pt-4">
+        <Button type="submit" fullWidth={false} isLoading={isSubmitting}>
+          {submitLabel}
+        </Button>
+      </div>
     </form>
   )
 }

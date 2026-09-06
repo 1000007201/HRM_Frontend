@@ -28,10 +28,10 @@ export function CreateEmployeePage() {
 
   return (
     <div className="max-w-lg">
-      <Link to="/employees" className="mb-4 inline-block text-sm text-primary-300 hover:underline">
+      <Link to="/employees" className="mb-4 inline-block text-sm text-primary hover:underline">
         ← Back to employees
       </Link>
-      <h1 className="mb-6 text-lg font-semibold text-heading">Add employee</h1>
+      <h1 className="mb-6 text-lg font-semibold text-ink">Add employee</h1>
       <EmployeeForm submitLabel="Create employee" serverError={serverError} onSubmit={handleSubmit} />
     </div>
   )

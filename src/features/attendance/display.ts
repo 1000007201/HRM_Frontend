@@ -3,7 +3,7 @@ import type { AttendanceStatus, Regularization } from './types'
 // THE one place attendance status -> colour/label lives. Calendar cells,
 // badges, legends and the HR table all read from here so they cannot drift
 // apart. Colours are design tokens only (see CLAUDE.md): PRESENT success,
-// HALF_DAY warning, ABSENT error, ON_LEAVE info, HOLIDAY/WEEK_OFF muted.
+// HALF_DAY warning, ABSENT error, ON_LEAVE onLeave, HOLIDAY/WEEK_OFF neutral.
 export const ATTENDANCE_STATUS_LABELS: Record<AttendanceStatus, string> = {
   PRESENT: 'Present',
   HALF_DAY: 'Half day',
@@ -17,13 +17,13 @@ const ATTENDANCE_STATUS_CLASSES: Record<AttendanceStatus, string> = {
   PRESENT: 'bg-success-bg text-success',
   HALF_DAY: 'bg-warning-bg text-warning',
   ABSENT: 'bg-error-bg text-error',
-  ON_LEAVE: 'bg-info-bg text-info',
-  HOLIDAY: 'bg-charcoal-50 text-secondary',
-  WEEK_OFF: 'bg-charcoal-50 text-secondary',
+  ON_LEAVE: 'bg-on-leave-bg text-on-leave',
+  HOLIDAY: 'bg-neutral text-neutral-ink',
+  WEEK_OFF: 'bg-neutral text-neutral-ink',
 }
 
 // null = the backend hasn't determined the day yet (today/future, no record).
-const UNDETERMINED_CLASSES = 'bg-white text-placeholder'
+const UNDETERMINED_CLASSES = 'bg-white text-muted'
 
 export const statusClasses = (status: AttendanceStatus | null): string =>
   status === null ? UNDETERMINED_CLASSES : ATTENDANCE_STATUS_CLASSES[status]

@@ -1,9 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import * as api from './api'
-import type { CreateEmployeeInput, UpdateEmployeeInput } from './types'
+import type { CreateEmployeeInput, EmployeeDocumentType, UpdateEmployeeInput } from './types'
 
 const employeesKey = (page: number, pageSize: number) => ['employees', { page, pageSize }] as const
 const employeeKey = (id: string) => ['employees', id] as const
+const employeeDocumentsKey = (employeeId: string) => ['employees', employeeId, 'documents'] as const
 const invitationsKey = ['invitations'] as const
 
 export function useEmployees(page: number, pageSize: number) {
@@ -79,5 +80,33 @@ export function useOrgChart() {
   return useQuery({
     queryKey: ['org-chart'],
     queryFn: () => api.getOrgChart(),
+  })
+}
+
+export function useEmployeeDocuments(employeeId: string) {
+  return useQuery({
+    queryKey: employeeDocumentsKey(employeeId),
+    queryFn: () => api.listEmployeeDocuments(employeeId),
+  })
+}
+
+export function useUploadEmployeeDocument(employeeId: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ type, file }: { type: EmployeeDocumentType; file: File }) =>
+      api.uploadEmployeeDocument(employeeId, type, file),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: employeeDocumentsKey(employeeId) })
+    },
+  })
+}
+
+export function useDeleteEmployeeDocument(employeeId: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (documentId: string) => api.deleteEmployeeDocument(employeeId, documentId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: employeeDocumentsKey(employeeId) })
+    },
   })
 }

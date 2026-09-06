@@ -35,7 +35,7 @@ function ElapsedSince({ checkInAt }: { checkInAt: string }) {
   const seconds = elapsedSeconds % 60
 
   return (
-    <span className="font-mono text-2xl font-semibold text-heading tabular-nums">
+    <span className="font-mono text-2xl font-semibold text-ink tabular-nums">
       {hours}:{String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
     </span>
   )
@@ -49,7 +49,7 @@ export function CheckInOutWidget() {
 
   if (isPending) {
     return (
-      <div className="flex justify-center rounded-md border border-card-border bg-white p-4">
+      <div className="flex justify-center rounded-2xl border border-border bg-white p-4">
         <Spinner size="sm" />
       </div>
     )
@@ -57,7 +57,7 @@ export function CheckInOutWidget() {
 
   if (isError) {
     return (
-      <div className="rounded-md border border-card-border bg-white p-4">
+      <div className="rounded-2xl border border-border bg-white p-4">
         <p className="text-sm text-error">Could not load today's attendance.</p>
       </div>
     )
@@ -68,8 +68,8 @@ export function CheckInOutWidget() {
   // boundary) — better to say nothing than to render a misleading widget.
   if (!today) {
     return (
-      <div className="rounded-md border border-card-border bg-white p-4">
-        <p className="text-sm text-secondary">No attendance entry for today.</p>
+      <div className="rounded-2xl border border-border bg-white p-4">
+        <p className="text-sm text-muted">No attendance entry for today.</p>
       </div>
     )
   }
@@ -81,35 +81,35 @@ export function CheckInOutWidget() {
     : ''
 
   return (
-    <div className="rounded-md border border-card-border bg-white p-4">
+    <div className="rounded-2xl border border-border bg-white p-4">
       <div className="mb-3 flex items-center justify-between">
-        <p className="text-sm font-medium text-heading">Today</p>
+        <p className="text-sm font-medium text-ink">Today</p>
         <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${statusClasses(today.status)}`}>
           {statusLabel(today.status)}
         </span>
       </div>
 
       {nonWorkingReason ? (
-        <p className="text-sm text-secondary">{nonWorkingReason}</p>
+        <p className="text-sm text-muted">{nonWorkingReason}</p>
       ) : today.checkInAt && today.checkOutAt ? (
         <div>
-          <p className="text-2xl font-semibold text-heading">{formatWorkedMinutes(today.workedMinutes)}</p>
-          <p className="mt-1 text-sm text-secondary">
+          <p className="text-2xl font-semibold text-ink">{formatWorkedMinutes(today.workedMinutes)}</p>
+          <p className="mt-1 text-sm text-muted">
             In {formatClockTime(today.checkInAt)} · Out {formatClockTime(today.checkOutAt)}
           </p>
         </div>
       ) : today.checkInAt ? (
         <div>
           <ElapsedSince checkInAt={today.checkInAt} />
-          <p className="mt-1 mb-3 text-sm text-secondary">Checked in at {formatClockTime(today.checkInAt)}</p>
-          <Button className="w-auto" isLoading={checkOut.isPending} onClick={() => checkOut.mutate()}>
+          <p className="mt-1 mb-3 text-sm text-muted">Checked in at {formatClockTime(today.checkInAt)}</p>
+          <Button fullWidth={false} isLoading={checkOut.isPending} onClick={() => checkOut.mutate()}>
             Check out
           </Button>
         </div>
       ) : (
         <div>
-          <p className="mb-3 text-sm text-secondary">You haven't checked in yet.</p>
-          <Button className="w-auto" isLoading={checkIn.isPending} onClick={() => checkIn.mutate()}>
+          <p className="mb-3 text-sm text-muted">You haven't checked in yet.</p>
+          <Button fullWidth={false} isLoading={checkIn.isPending} onClick={() => checkIn.mutate()}>
             Check in
           </Button>
         </div>

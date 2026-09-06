@@ -56,8 +56,8 @@ export function RegisterCompanyPage() {
 
   return (
     <AuthLayout>
-      <h1 className="mb-2 text-lg font-semibold text-heading">Register your company</h1>
-      <p className="mb-6 text-sm text-secondary">Internal/dev-only for now — public sign-up is disabled.</p>
+      <h1 className="mb-2 text-lg font-semibold text-ink">Register your company</h1>
+      <p className="mb-6 text-sm text-muted">Internal/dev-only for now — public sign-up is disabled.</p>
       {errorMessage && (
         <p className="mb-4 rounded-md border border-error bg-error-bg px-3 py-2 text-sm text-error">
           {errorMessage}
@@ -94,7 +94,7 @@ export function RegisterCompanyPage() {
           errorMessage={errors.password?.message}
           {...register('password')}
         />
-        <p className="-mt-3 mb-4 text-xs text-secondary">
+        <p className="-mt-3 mb-4 text-xs text-muted">
           {password.length}/{MAX_PASSWORD_LENGTH} characters
         </p>
         <FormInput

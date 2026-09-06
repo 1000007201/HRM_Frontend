@@ -49,10 +49,10 @@ export function DecisionActions({ requestId, approveMutation, rejectMutation }: 
   if (pendingKind === null) {
     return (
       <div className="flex justify-end gap-2">
-        <Button variant="secondary" className="w-auto" onClick={() => startDecision('reject')}>
+        <Button variant="secondary" fullWidth={false} onClick={() => startDecision('reject')}>
           Reject
         </Button>
-        <Button className="w-auto" onClick={() => startDecision('approve')}>
+        <Button fullWidth={false} onClick={() => startDecision('approve')}>
           Approve
         </Button>
       </div>
@@ -66,14 +66,14 @@ export function DecisionActions({ requestId, approveMutation, rejectMutation }: 
         placeholder="Decision note (optional)"
         value={decisionNote}
         onChange={(event) => setDecisionNote(event.target.value)}
-        className="w-56 rounded-md border border-charcoal-100 px-2 py-1 text-sm text-body placeholder:text-placeholder focus:outline-none focus:ring-2 focus:ring-primary-300"
+        className="w-56 rounded-md border border-border px-2 py-1 text-sm text-ink-2 placeholder:text-muted focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
       />
       {mutation.isError && <p className="text-xs text-error">{errorMessage(mutation.error, 'Action failed.')}</p>}
       <div className="flex gap-2">
-        <Button variant="secondary" className="w-auto" onClick={() => setPendingKind(null)}>
+        <Button variant="secondary" fullWidth={false} onClick={() => setPendingKind(null)}>
           Cancel
         </Button>
-        <Button className="w-auto" isLoading={mutation.isPending} onClick={confirmDecision}>
+        <Button fullWidth={false} isLoading={mutation.isPending} onClick={confirmDecision}>
           Confirm {pendingKind}
         </Button>
       </div>

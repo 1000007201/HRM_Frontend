@@ -11,7 +11,7 @@ const STATUS_CLASSES: Record<RequestStatus, string> = {
   PENDING: 'bg-warning-bg text-warning',
   APPROVED: 'bg-success-bg text-success',
   REJECTED: 'bg-error-bg text-error',
-  CANCELLED: 'bg-charcoal-50 text-secondary',
+  CANCELLED: 'bg-neutral text-neutral-ink',
 }
 
 export function RequestStatusBadge({ status }: { status: RequestStatus }) {

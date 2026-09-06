@@ -56,8 +56,8 @@ function AddHolidayForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit(handleFormSubmit)} className="rounded-md border border-card-border bg-charcoal-50 p-4">
-      <p className="mb-3 text-sm font-medium text-heading">Add a holiday</p>
+    <form onSubmit={handleSubmit(handleFormSubmit)} className="rounded-2xl border border-border bg-canvas p-4">
+      <p className="mb-3 text-sm font-medium text-ink">Add a holiday</p>
       {serverError && (
         <p className="mb-3 rounded-md border border-error bg-error-bg px-3 py-2 text-sm text-error">{serverError}</p>
       )}
@@ -80,7 +80,7 @@ function AddHolidayForm() {
           errorMessage={errors.name?.message}
           {...register('name')}
         />
-        <Button type="submit" className="mt-6 w-auto" isLoading={isSubmitting}>
+        <Button type="submit" className="mt-6" fullWidth={false} isLoading={isSubmitting}>
           Add
         </Button>
       </div>
@@ -105,7 +105,7 @@ function HolidayList({ year, canManage }: { year: number; canManage: boolean }) 
   }
 
   if (data.holidays.length === 0) {
-    return <p className="text-sm text-secondary">No holidays added for {year}.</p>
+    return <p className="text-sm text-muted">No holidays added for {year}.</p>
   }
 
   return (
@@ -118,24 +118,24 @@ function HolidayList({ year, canManage }: { year: number; canManage: boolean }) 
       <div className="flex flex-col gap-6">
         {groupByMonth(data.holidays).map(([monthLabel, monthHolidays]) => (
           <div key={monthLabel}>
-            <p className="mb-2 text-xs font-medium uppercase tracking-wide text-secondary">{monthLabel}</p>
+            <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted">{monthLabel}</p>
             <ul className="flex flex-col gap-2">
               {monthHolidays.map((holiday) => (
                 <li
                   key={holiday.id}
-                  className="flex items-center gap-4 rounded-md border border-card-border bg-white px-4 py-2"
+                  className="flex items-center gap-4 rounded-md border border-border bg-white px-4 py-2"
                 >
-                  <span className="w-20 shrink-0 text-sm font-medium text-heading">
+                  <span className="w-20 shrink-0 text-sm font-medium text-ink">
                     {dayFormatter.format(new Date(holiday.date))}
                   </span>
-                  <span className="w-24 shrink-0 text-sm text-secondary">
+                  <span className="w-24 shrink-0 text-sm text-muted">
                     {weekdayFormatter.format(new Date(holiday.date))}
                   </span>
-                  <span className="flex-1 text-sm text-body">{holiday.name}</span>
+                  <span className="flex-1 text-sm text-ink-2">{holiday.name}</span>
                   {canManage && (
                     <Button
                       variant="secondary"
-                      className="w-auto"
+                      fullWidth={false}
                       isLoading={deleteHoliday.isPending && deleteHoliday.variables === holiday.id}
                       onClick={() => deleteHoliday.mutate(holiday.id)}
                     >
@@ -162,16 +162,16 @@ export function HolidaysPage() {
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-lg font-semibold text-heading">Holiday calendar</h1>
+        <h1 className="text-lg font-semibold text-ink">Holiday calendar</h1>
         <div className="flex items-center gap-2">
-          <label htmlFor="holidayYear" className="text-sm text-secondary">
+          <label htmlFor="holidayYear" className="text-sm text-muted">
             Year
           </label>
           <select
             id="holidayYear"
             value={year}
             onChange={(event) => setYear(Number(event.target.value))}
-            className="rounded-md border border-charcoal-100 bg-white px-3 py-2 text-sm text-body focus:outline-none focus:ring-2 focus:ring-primary-300"
+            className="rounded-md border border-border bg-white px-3 py-2 text-sm text-ink-2 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
           >
             {SELECTABLE_YEARS.map((selectableYear) => (
               <option key={selectableYear} value={selectableYear}>

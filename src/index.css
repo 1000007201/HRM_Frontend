@@ -1,35 +1,138 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary-50: #e8f4fc;
-  --color-primary-100: #b3dcfa;
-  --color-primary-200: #5bb8f0;
-  --color-primary-300: #1a9fe0;
-  --color-primary-400: #0c6ba8;
+  /* Coffee theme - core semantic tokens. This is the single place theme
+     colors are defined; components should reference these (bg-primary,
+     text-ink, border-border, ...) rather than raw hex. */
+  --color-canvas: #fbfaf8;
+  --color-panel: #ffffff;
+  --color-border: #efeae4;
+  --color-primary: #8a5d3b;
+  --color-primary-hover: #754c2e;
+  --color-accent: #e0a878;
+  /* Sidebar is its own warm peach surface, distinct from the white
+     panel/canvas — the active item is a white pill sitting on top of it. */
+  --color-sidebar: #f7e9d8;
+  --color-sidebar-hover: #f2ddc4;
+  --color-active-pill-bg: #ffffff;
+  /* Spec value #9a6a45 on this bg is ~3.85:1, short of AA (4.5:1) for 14px
+     text. Reusing --color-primary here hits ~4.7:1 while staying in the
+     same coffee family. */
+  --color-active-pill-ink: var(--color-primary);
+  --color-row-hover: #f5ece3;
 
-  --color-charcoal-50: #eaeef2;
-  --color-charcoal-100: #c8cdd3;
-  --color-charcoal-200: #6b6f75;
-  --color-charcoal-300: #3d3d3d;
-  --color-charcoal-400: #2c2c2c;
+  --color-ink: #3f3128;
+  --color-ink-2: #6f6156;
+  /* Spec value #a89a8d on white is ~2.7:1 — muted is used as real label/
+     empty-state text everywhere (not just decorative), so that's a genuine
+     AA failure at normal text sizes, not a corner case. Darkened to ~4.8:1
+     while staying the lightest/warmest of the three text tones. */
+  --color-muted: #7d7062;
 
-  --color-heading: #111111;
-  --color-body: #333333;
-  --color-secondary: #666666;
-  --color-placeholder: #999999;
-
-  --color-card-border: #d8dde3;
-
-  --color-success: #16a34a;
-  --color-success-bg: #dcfce7;
-  --color-warning: #eab308;
-  --color-warning-bg: #fef9c3;
-  --color-error: #dc2626;
-  --color-error-bg: #fee2e2;
-  --color-info: #8b5cf6;
-  --color-info-bg: #f3e8ff;
+  --color-success: #3f8f5b;
+  --color-success-bg: #e8f2ea;
+  --color-warning: #c98a2e;
+  --color-warning-bg: #f7ecd6;
+  --color-error: #b4472e;
+  --color-error-bg: #f6e1da;
+  --color-on-leave: #8a6f57;
+  --color-on-leave-bg: #efe7df;
+  --color-neutral: #efeae4;
+  --color-neutral-ink: #8a6f57;
+  /* Role pills (ADMIN/HR/MANAGER/EMPLOYEE) get their own bg so they read as
+     distinct from status pills even though the ink color is shared. */
+  --color-role-pill-bg: #f1ece5;
 }
 
 body {
-  background-color: var(--color-charcoal-50);
+  background-color: var(--color-canvas);
+}
+
+/* Top-down org chart connectors (classic CSS3 tree-chart pattern). Needs
+   :first-child/:last-child/:only-child + ::before/::after border tricks that
+   don't map cleanly onto Tailwind utility classes, hence real CSS here. Only
+   the outermost child <ul> per branch needs the "org-tree" class — nested
+   <ul>/<li> below it match via the descendant selectors regardless. */
+.org-tree,
+.org-tree ul {
+  display: flex;
+  justify-content: center;
+  padding-top: 1.25rem;
+  margin: 0;
+  position: relative;
+}
+
+.org-tree li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  list-style: none;
+  position: relative;
+  padding: 1.25rem 0.5rem 0 0.5rem;
+}
+
+.org-tree li::before,
+.org-tree li::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 50%;
+  width: 50%;
+  height: 1.25rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.org-tree li::after {
+  right: auto;
+  left: 50%;
+  border-left: 1px solid var(--color-border);
+}
+
+.org-tree li:only-child {
+  padding-top: 0;
+}
+
+.org-tree li:only-child::before,
+.org-tree li:only-child::after {
+  display: none;
+}
+
+.org-tree li:first-child::before,
+.org-tree li:last-child::after {
+  border: none;
+}
+
+.org-tree li:last-child::before {
+  border-right: 1px solid var(--color-border);
+  border-radius: 0 6px 0 0;
+}
+
+.org-tree li:first-child::after {
+  border-radius: 6px 0 0 0;
+}
+
+.org-tree ul::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 0;
+  height: 1.25rem;
+  border-left: 1px solid var(--color-border);
+}
+
+/* Independent root trees (no shared parent) still need every li flex-column
+   + centered so a card centers over its own subtree — but must not draw the
+   sibling bar / parent stub .org-tree normally adds. */
+.org-tree-root {
+  padding-top: 0;
+}
+
+.org-tree-root > li {
+  padding-top: 0;
+}
+
+.org-tree-root > li::before,
+.org-tree-root > li::after {
+  display: none;
 }

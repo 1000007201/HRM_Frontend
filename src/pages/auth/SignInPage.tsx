@@ -37,9 +37,9 @@ export function SignInPage() {
 
   return (
     <AuthLayout>
-      <h1 className="mb-6 text-lg font-semibold text-heading">Sign in</h1>
+      <h1 className="mb-6 text-lg font-semibold text-ink">Sign in</h1>
       {redirectMessage && !errorMessage && (
-        <p className="mb-4 rounded-md border border-success bg-success-bg px-3 py-2 text-sm text-body">
+        <p className="mb-4 rounded-md border border-success bg-success-bg px-3 py-2 text-sm text-ink-2">
           {redirectMessage}
         </p>
       )}
@@ -69,7 +69,7 @@ export function SignInPage() {
           Sign in
         </Button>
       </form>
-      <Link to="/forgot-password" className="mt-4 block text-center text-sm text-primary-300 hover:underline">
+      <Link to="/forgot-password" className="mt-4 block text-center text-sm text-primary hover:underline">
         Forgot password?
       </Link>
     </AuthLayout>

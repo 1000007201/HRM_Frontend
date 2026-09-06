@@ -8,13 +8,13 @@ interface FormInputProps extends InputHTMLAttributes<HTMLInputElement> {
 export function FormInput({ label, errorMessage, id, className, ...inputProps }: FormInputProps) {
   return (
     <div className="mb-4">
-      <label htmlFor={id} className="mb-1 block text-sm font-medium text-body">
+      <label htmlFor={id} className="mb-1 block text-sm font-medium text-ink-2">
         {label}
       </label>
       <input
         id={id}
-        className={`w-full rounded-md border px-3 py-2 text-body placeholder:text-placeholder focus:outline-none focus:ring-2 focus:ring-primary-300 ${
-          errorMessage ? 'border-error' : 'border-charcoal-100'
+        className={`w-full rounded-md border px-3 py-1.5 text-ink-2 placeholder:text-muted focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 ${
+          errorMessage ? 'border-error' : 'border-border'
         } ${className ?? ''}`}
         {...inputProps}
       />

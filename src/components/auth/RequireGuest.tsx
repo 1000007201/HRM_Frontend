@@ -7,7 +7,7 @@ export function RequireGuest() {
 
   if (isPending) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-charcoal-50">
+      <div className="flex min-h-screen items-center justify-center bg-canvas">
         <Spinner />
       </div>
     )

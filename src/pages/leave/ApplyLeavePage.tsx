@@ -62,10 +62,10 @@ export function ApplyLeavePage() {
 
   return (
     <div className="max-w-lg">
-      <Link to="/leave" className="mb-4 inline-block text-sm text-primary-300 hover:underline">
+      <Link to="/leave" className="mb-4 inline-block text-sm text-primary hover:underline">
         ← Back to my leave
       </Link>
-      <h1 className="mb-6 text-lg font-semibold text-heading">Apply for leave</h1>
+      <h1 className="mb-6 text-lg font-semibold text-ink">Apply for leave</h1>
       <form onSubmit={handleSubmit(handleFormSubmit)}>
         {serverError && (
           <p className="mb-4 rounded-md border border-error bg-error-bg px-3 py-2 text-sm text-error">{serverError}</p>
@@ -85,8 +85,8 @@ export function ApplyLeavePage() {
           ))}
         </FormSelect>
         {selectedBalance && (
-          <p className="-mt-2 mb-4 text-sm text-secondary">
-            Available: <span className="font-medium text-heading">{selectedBalance.availableDays}</span> days
+          <p className="-mt-2 mb-4 text-sm text-muted">
+            Available: <span className="font-medium text-ink">{selectedBalance.availableDays}</span> days
           </p>
         )}
         <div className="grid grid-cols-2 gap-4">
@@ -107,20 +107,20 @@ export function ApplyLeavePage() {
             {...register('endDate')}
           />
         </div>
-        <label className="mb-4 flex items-center gap-2 text-sm text-body">
+        <label className="mb-4 flex items-center gap-2 text-sm text-ink-2">
           <input type="checkbox" disabled={isSubmitting || !canUseHalfDay} {...register('isHalfDay')} />
           Half-day{!canUseHalfDay && ' (single-day request only, if the leave type allows it)'}
         </label>
         {errors.isHalfDay && <p className="-mt-3 mb-4 text-sm text-error">{errors.isHalfDay.message}</p>}
         <div className="mb-4">
-          <label htmlFor="reason" className="mb-1 block text-sm font-medium text-body">
+          <label htmlFor="reason" className="mb-1 block text-sm font-medium text-ink-2">
             Reason (optional)
           </label>
           <textarea
             id="reason"
             rows={3}
             disabled={isSubmitting}
-            className="w-full rounded-md border border-charcoal-100 px-3 py-2 text-body placeholder:text-placeholder focus:outline-none focus:ring-2 focus:ring-primary-300"
+            className="w-full rounded-md border border-border px-3 py-2 text-ink-2 placeholder:text-muted focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
             {...register('reason')}
           />
         </div>

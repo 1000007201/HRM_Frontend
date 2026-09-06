@@ -1,7 +1,10 @@
 import { apiFetch } from '../../lib/apiClient'
+import { API_BASE_URL } from '../../lib/auth-client'
 import type {
   CreateEmployeeInput,
   Employee,
+  EmployeeDocument,
+  EmployeeDocumentType,
   EmployeeListResult,
   Invitation,
   InvitationLink,
@@ -49,4 +52,32 @@ export function cancelInvitation(id: string) {
 
 export function getOrgChart() {
   return apiFetch<{ tree: OrgChartNode[] }>('/api/employees/org-chart')
+}
+
+export function listEmployeeDocuments(employeeId: string) {
+  return apiFetch<{ documents: EmployeeDocument[] }>(`/api/employees/${employeeId}/documents`)
+}
+
+export function uploadEmployeeDocument(employeeId: string, type: EmployeeDocumentType, file: File) {
+  const formData = new FormData()
+  // `type` must come before `file` — the backend reads it off the fields
+  // collected while streaming up to the file part.
+  formData.append('type', type)
+  formData.append('file', file)
+  return apiFetch<{ document: EmployeeDocument }>(`/api/employees/${employeeId}/documents`, {
+    method: 'POST',
+    body: formData,
+  })
+}
+
+export function deleteEmployeeDocument(employeeId: string, documentId: string) {
+  return apiFetch<{ deleted: boolean }>(`/api/employees/${employeeId}/documents/${documentId}`, {
+    method: 'DELETE',
+  })
+}
+
+// Session cookie rides along on a plain top-level navigation, so downloads
+// are a normal <a href> rather than a fetch-and-blob dance.
+export function employeeDocumentDownloadUrl(employeeId: string, documentId: string) {
+  return `${API_BASE_URL}/api/employees/${employeeId}/documents/${documentId}/download`
 }

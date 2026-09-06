@@ -50,10 +50,10 @@ function MarkAttendanceForm({ entry, dateKey, onDone }: { entry: OrgDayEntry; da
   }
 
   return (
-    <tr className="border-b border-card-border bg-charcoal-50">
+    <tr className="border-b border-border bg-canvas">
       <td colSpan={5} className="px-3 py-3">
         <form onSubmit={handleSubmit(handleFormSubmit)}>
-          <p className="mb-2 text-sm font-medium text-heading">Mark / correct — {entry.employee.fullName}</p>
+          <p className="mb-2 text-sm font-medium text-ink">Mark / correct — {entry.employee.fullName}</p>
           {serverError && (
             <p className="mb-3 rounded-md border border-error bg-error-bg px-3 py-2 text-sm text-error">{serverError}</p>
           )}
@@ -96,10 +96,10 @@ function MarkAttendanceForm({ entry, dateKey, onDone }: { entry: OrgDayEntry; da
               disabled={isSubmitting}
               {...register('note')}
             />
-            <Button type="submit" className="mt-6 w-auto" isLoading={isSubmitting}>
+            <Button type="submit" className="mt-6" fullWidth={false} isLoading={isSubmitting}>
               Save
             </Button>
-            <Button type="button" variant="secondary" className="mt-6 w-auto" onClick={onDone}>
+            <Button type="button" variant="secondary" className="mt-6" fullWidth={false} onClick={onDone}>
               Cancel
             </Button>
           </div>
@@ -117,9 +117,9 @@ export function HrDayViewPage() {
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-lg font-semibold text-heading">Attendance — day view</h1>
+        <h1 className="text-lg font-semibold text-ink">Attendance — day view</h1>
         <div className="flex items-center gap-2">
-          <label htmlFor="dayViewDate" className="text-sm text-secondary">
+          <label htmlFor="dayViewDate" className="text-sm text-muted">
             Date
           </label>
           <input
@@ -129,7 +129,7 @@ export function HrDayViewPage() {
             onChange={(event) => {
               if (event.target.value) setDateKey(event.target.value)
             }}
-            className="rounded-md border border-charcoal-100 bg-white px-3 py-2 text-sm text-body focus:outline-none focus:ring-2 focus:ring-primary-300"
+            className="rounded-md border border-border bg-white px-3 py-2 text-sm text-ink-2 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
           />
         </div>
       </div>
@@ -143,11 +143,11 @@ export function HrDayViewPage() {
             : errorMessage(error, 'Could not load attendance for this date.')}
         </p>
       ) : data.attendance.length === 0 ? (
-        <p className="text-sm text-secondary">No employees to show for this date.</p>
+        <p className="text-sm text-muted">No employees to show for this date.</p>
       ) : (
         <table className="w-full text-left text-sm">
           <thead>
-            <tr className="border-b border-card-border text-xs text-secondary">
+            <tr className="border-b border-border text-xs text-muted">
               <th className="py-2 font-medium">Employee</th>
               <th className="py-2 font-medium">Status</th>
               <th className="py-2 font-medium">In / Out</th>
@@ -158,22 +158,22 @@ export function HrDayViewPage() {
           <tbody>
             {data.attendance.map((entry) => (
               <Fragment key={entry.employee.id}>
-                <tr className="border-b border-card-border last:border-0">
-                  <td className="py-2 text-body">{entry.employee.fullName}</td>
+                <tr className="border-b border-border last:border-0 hover:bg-row-hover">
+                  <td className="py-2 text-ink-2">{entry.employee.fullName}</td>
                   <td className="py-2">
                     <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${statusClasses(entry.day.status)}`}>
                       {statusLabel(entry.day.status)}
                     </span>
                   </td>
-                  <td className="py-2 text-body">
+                  <td className="py-2 text-ink-2">
                     {formatClockTime(entry.day.checkInAt)} / {formatClockTime(entry.day.checkOutAt)}
                   </td>
-                  <td className="py-2 text-body">{formatWorkedMinutes(entry.day.workedMinutes)}</td>
+                  <td className="py-2 text-ink-2">{formatWorkedMinutes(entry.day.workedMinutes)}</td>
                   <td className="py-2 text-right">
                     {markingEmployeeId !== entry.employee.id && (
                       <Button
                         variant="secondary"
-                        className="w-auto"
+                        fullWidth={false}
                         onClick={() => setMarkingEmployeeId(entry.employee.id)}
                       >
                         Mark / correct

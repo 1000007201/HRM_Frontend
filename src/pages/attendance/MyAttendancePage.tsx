@@ -38,7 +38,7 @@ function Legend() {
           {ATTENDANCE_STATUS_LABELS[status]}
         </span>
       ))}
-      <span className={`rounded-full border border-card-border px-2 py-0.5 text-xs font-medium ${statusClasses(null)}`}>
+      <span className={`rounded-full border border-border px-2 py-0.5 text-xs font-medium ${statusClasses(null)}`}>
         Not marked
       </span>
     </div>
@@ -49,26 +49,26 @@ function DayDetail({ day, onClose }: { day: DerivedDay; onClose: () => void }) {
   const [isRegularizing, setIsRegularizing] = useState(false)
 
   return (
-    <div className="mt-4 rounded-md border border-card-border bg-charcoal-50 p-4">
+    <div className="mt-4 rounded-2xl border border-border bg-canvas p-4">
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-sm font-medium text-heading">{formatDayLabel(day.date)}</p>
+          <p className="text-sm font-medium text-ink">{formatDayLabel(day.date)}</p>
           <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-xs font-medium ${statusClasses(day.status)}`}>
             {statusLabel(day.status)}
           </span>
-          <p className="mt-2 text-sm text-secondary">
+          <p className="mt-2 text-sm text-muted">
             In {formatClockTime(day.checkInAt)} · Out {formatClockTime(day.checkOutAt)} ·{' '}
             {formatWorkedMinutes(day.workedMinutes)}
           </p>
-          {day.note && <p className="mt-1 text-sm text-secondary">Note: {day.note}</p>}
+          {day.note && <p className="mt-1 text-sm text-muted">Note: {day.note}</p>}
         </div>
         <div className="flex gap-2">
           {canRegularize(day) && !isRegularizing && (
-            <Button variant="secondary" className="w-auto" onClick={() => setIsRegularizing(true)}>
+            <Button variant="secondary" fullWidth={false} onClick={() => setIsRegularizing(true)}>
               Regularize
             </Button>
           )}
-          <Button variant="secondary" className="w-auto" onClick={onClose}>
+          <Button variant="secondary" fullWidth={false} onClick={onClose}>
             Close
           </Button>
         </div>
@@ -95,7 +95,7 @@ function MonthCalendar({ month }: { month: string }) {
   }
 
   if (data.days.length === 0) {
-    return <p className="text-sm text-secondary">No attendance data for {formatMonthLabel(month)}.</p>
+    return <p className="text-sm text-muted">No attendance data for {formatMonthLabel(month)}.</p>
   }
 
   const selectedDay = data.days.find((day) => day.date === selectedDateKey)
@@ -104,7 +104,7 @@ function MonthCalendar({ month }: { month: string }) {
     <div>
       <div className="grid grid-cols-7 gap-2">
         {WEEKDAY_HEADINGS.map((weekday) => (
-          <div key={weekday} className="pb-1 text-center text-xs font-medium text-secondary">
+          <div key={weekday} className="pb-1 text-center text-xs font-medium text-muted">
             {weekday}
           </div>
         ))}
@@ -117,7 +117,7 @@ function MonthCalendar({ month }: { month: string }) {
             type="button"
             onClick={() => setSelectedDateKey(day.date === selectedDateKey ? null : day.date)}
             className={`flex min-h-16 flex-col items-start rounded-md border p-2 text-left transition-colors ${statusClasses(day.status)} ${
-              day.date === selectedDateKey ? 'border-primary-300 ring-2 ring-primary-100' : 'border-card-border'
+              day.date === selectedDateKey ? 'border-primary ring-2 ring-accent' : 'border-border'
             }`}
           >
             <span className="text-sm font-semibold">{toUtcDate(day.date).getUTCDate()}</span>
@@ -135,7 +135,7 @@ export function MyAttendancePage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-lg font-semibold text-heading">My attendance</h1>
+      <h1 className="mb-6 text-lg font-semibold text-ink">My attendance</h1>
 
       <div className="mb-8 max-w-sm">
         <CheckInOutWidget />
@@ -143,11 +143,11 @@ export function MyAttendancePage() {
 
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Button variant="secondary" className="w-auto" onClick={() => setMonth((current) => shiftMonth(current, -1))}>
+          <Button variant="secondary" fullWidth={false} onClick={() => setMonth((current) => shiftMonth(current, -1))}>
             ←
           </Button>
-          <span className="min-w-40 text-center text-sm font-medium text-heading">{formatMonthLabel(month)}</span>
-          <Button variant="secondary" className="w-auto" onClick={() => setMonth((current) => shiftMonth(current, 1))}>
+          <span className="min-w-40 text-center text-sm font-medium text-ink">{formatMonthLabel(month)}</span>
+          <Button variant="secondary" fullWidth={false} onClick={() => setMonth((current) => shiftMonth(current, 1))}>
             →
           </Button>
         </div>
@@ -157,7 +157,7 @@ export function MyAttendancePage() {
       <MonthCalendar month={month} />
 
       <div className="mt-8">
-        <h2 className="mb-3 text-sm font-medium text-heading">My regularizations</h2>
+        <h2 className="mb-3 text-sm font-medium text-ink">My regularizations</h2>
         <MyRegularizationsList />
       </div>
     </div>
