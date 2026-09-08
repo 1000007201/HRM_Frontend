@@ -19,6 +19,16 @@ export function CreateEmployeePage() {
         role: values.role,
         designation: values.designation || undefined,
         managerId: values.managerId || undefined,
+        departmentId: values.departmentId || undefined,
+        joiningDate: values.joiningDate || undefined,
+        leavingDate: values.leavingDate || undefined,
+        employeeCode: values.employeeCode || undefined,
+        phone: values.phone || undefined,
+        dateOfBirth: values.dateOfBirth || undefined,
+        gender: values.gender || undefined,
+        address: values.address || undefined,
+        emergencyContactName: values.emergencyContactName || undefined,
+        emergencyContactPhone: values.emergencyContactPhone || undefined,
       })
       navigate(`/employees/${employee.id}`, { replace: true })
     } catch (error) {

@@ -23,20 +23,6 @@ export function EditEmployeePage() {
 
   const { employee } = data
 
-  // The backend only ever assigns ADMIN at company registration and its own
-  // update endpoint rejects role: "ADMIN" — so this form (which only offers
-  // HR/MANAGER/EMPLOYEE) can't represent the owner's record. Out of scope here.
-  if (employee.role === 'ADMIN') {
-    return (
-      <div>
-        <Link to={`/employees/${employee.id}`} className="mb-4 inline-block text-sm text-primary hover:underline">
-          ← Back to employee
-        </Link>
-        <p className="text-sm text-ink-2">The organization owner's record can't be edited here.</p>
-      </div>
-    )
-  }
-
   async function handleSubmit(values: EmployeeFormValues) {
     setServerError('')
     try {
@@ -46,6 +32,16 @@ export function EditEmployeePage() {
         role: values.role,
         designation: values.designation || null,
         managerId: values.managerId || null,
+        departmentId: values.departmentId || null,
+        joiningDate: values.joiningDate || null,
+        leavingDate: values.leavingDate || null,
+        employeeCode: values.employeeCode || null,
+        phone: values.phone || null,
+        dateOfBirth: values.dateOfBirth || null,
+        gender: values.gender || null,
+        address: values.address || null,
+        emergencyContactName: values.emergencyContactName || null,
+        emergencyContactPhone: values.emergencyContactPhone || null,
       })
       navigate(`/employees/${id}`, { replace: true })
     } catch (error) {
@@ -71,6 +67,16 @@ export function EditEmployeePage() {
           role: employee.role,
           designation: employee.designation ?? '',
           managerId: employee.managerId ?? '',
+          departmentId: employee.departmentId ?? '',
+          joiningDate: employee.joiningDate ? employee.joiningDate.slice(0, 10) : '',
+          leavingDate: employee.leavingDate ? employee.leavingDate.slice(0, 10) : '',
+          employeeCode: employee.employeeCode ?? '',
+          phone: employee.phone ?? '',
+          dateOfBirth: employee.dateOfBirth ? employee.dateOfBirth.slice(0, 10) : '',
+          gender: employee.gender ?? '',
+          address: employee.address ?? '',
+          emergencyContactName: employee.emergencyContactName ?? '',
+          emergencyContactPhone: employee.emergencyContactPhone ?? '',
         }}
         onSubmit={handleSubmit}
       />

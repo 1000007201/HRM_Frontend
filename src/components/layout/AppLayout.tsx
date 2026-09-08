@@ -3,6 +3,7 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import {
   Bell,
+  Building2,
   Calendar,
   CheckCircle,
   CheckSquare,
@@ -141,6 +142,7 @@ export function AppLayout() {
       items: [
         { to: '/dashboard', label: 'Dashboard', icon: LayoutGrid, show: true },
         { to: '/employees', label: 'Employees', icon: Users, show: canManageEmployees },
+        { to: '/departments', label: 'Departments', icon: Building2, show: canManageEmployees },
         { to: '/org-chart', label: 'Org chart', icon: GitBranch, show: canManageEmployees },
         { to: '/invitations', label: 'Invitations', icon: Mail, show: canManageEmployees },
         { to: '/holidays', label: 'Holidays', icon: Calendar, show: true },

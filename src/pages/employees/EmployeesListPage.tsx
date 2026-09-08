@@ -5,7 +5,7 @@ import { FormSelect } from '../../components/ui/FormSelect'
 import { Modal } from '../../components/ui/Modal'
 import { ApiError, errorMessage } from '../../lib/apiClient'
 import { useActiveMemberRole } from '../../lib/useActiveMemberRole'
-import { useCreateEmployee, useEmployees } from '../../features/employees/hooks'
+import { useCreateEmployee, useDepartments, useEmployees } from '../../features/employees/hooks'
 import { EMPLOYEE_ROLES, type EmployeeRole } from '../../features/employees/types'
 import { EmployeeForm } from '../../features/employees/EmployeeForm'
 import type { EmployeeFormValues } from '../../features/employees/validation'
@@ -19,13 +19,19 @@ function portalStatusLabel(hasUser: boolean, invitedAt: string | null) {
   return 'Not invited'
 }
 
+function formatDate(value: string | null): string {
+  return value ? new Date(value).toLocaleDateString() : '—'
+}
+
 export function EmployeesListPage() {
   const [page, setPage] = useState(1)
   const [searchTerm, setSearchTerm] = useState('')
   const [roleFilter, setRoleFilter] = useState<EmployeeRole | ''>('')
+  const [departmentFilter, setDepartmentFilter] = useState('')
   const [isAddOpen, setIsAddOpen] = useState(false)
   const [addServerError, setAddServerError] = useState('')
   const { data, isPending, isError, error } = useEmployees(page, PAGE_SIZE)
+  const { data: departmentData } = useDepartments()
   const { canManageEmployees } = useActiveMemberRole()
   const createEmployee = useCreateEmployee()
 
@@ -38,6 +44,16 @@ export function EmployeesListPage() {
         role: values.role,
         designation: values.designation || undefined,
         managerId: values.managerId || undefined,
+        departmentId: values.departmentId || undefined,
+        joiningDate: values.joiningDate || undefined,
+        leavingDate: values.leavingDate || undefined,
+        employeeCode: values.employeeCode || undefined,
+        phone: values.phone || undefined,
+        dateOfBirth: values.dateOfBirth || undefined,
+        gender: values.gender || undefined,
+        address: values.address || undefined,
+        emergencyContactName: values.emergencyContactName || undefined,
+        emergencyContactPhone: values.emergencyContactPhone || undefined,
       })
       setIsAddOpen(false)
     } catch (error) {
@@ -53,9 +69,10 @@ export function EmployeesListPage() {
     return data.employees.filter((employee) => {
       const matchesTerm = term === '' || employee.fullName.toLowerCase().includes(term) || employee.email.toLowerCase().includes(term)
       const matchesRole = roleFilter === '' || employee.role === roleFilter
-      return matchesTerm && matchesRole
+      const matchesDepartment = departmentFilter === '' || employee.departmentId === departmentFilter
+      return matchesTerm && matchesRole && matchesDepartment
     })
-  }, [data, searchTerm, roleFilter])
+  }, [data, searchTerm, roleFilter, departmentFilter])
 
   if (isPending) {
     return <LoadingState />
@@ -119,6 +136,20 @@ export function EmployeesListPage() {
                 </option>
               ))}
             </FormSelect>
+            <FormSelect
+              id="departmentFilter"
+              label="Department"
+              className="w-48"
+              value={departmentFilter}
+              onChange={(event) => setDepartmentFilter(event.target.value)}
+            >
+              <option value="">All departments</option>
+              {(departmentData?.departments ?? []).map((department) => (
+                <option key={department.id} value={department.id}>
+                  {department.name}
+                </option>
+              ))}
+            </FormSelect>
           </div>
 
           {filteredEmployees.length === 0 ? (
@@ -130,8 +161,11 @@ export function EmployeesListPage() {
                   <th className="py-2 font-medium">Name</th>
                   <th className="py-2 font-medium">Email</th>
                   <th className="py-2 font-medium">Role</th>
+                  <th className="py-2 font-medium">Department</th>
                   <th className="py-2 font-medium">Designation</th>
                   <th className="py-2 font-medium">Reporting Person</th>
+                  <th className="py-2 font-medium">Date of joining</th>
+                  <th className="py-2 font-medium">Date of leaving</th>
                   <th className="py-2 font-medium">Portal access</th>
                 </tr>
               </thead>
@@ -145,8 +179,11 @@ export function EmployeesListPage() {
                     </td>
                     <td className="py-2 text-ink-2">{employee.email}</td>
                     <td className="py-2 text-ink-2">{employee.role}</td>
+                    <td className="py-2 text-ink-2">{employee.department?.name ?? '—'}</td>
                     <td className="py-2 text-ink-2">{employee.designation ?? '—'}</td>
                     <td className="py-2 text-ink-2">{employee.manager?.fullName ?? '—'}</td>
+                    <td className="py-2 text-ink-2">{formatDate(employee.joiningDate)}</td>
+                    <td className="py-2 text-ink-2">{formatDate(employee.leavingDate)}</td>
                     <td className="py-2 text-ink-2">{portalStatusLabel(employee.userId !== null, employee.invitedAt)}</td>
                   </tr>
                 ))}

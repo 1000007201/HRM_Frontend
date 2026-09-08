@@ -225,10 +225,37 @@ export function EmployeeDetailPage() {
       <dl className="grid grid-cols-2 gap-4">
         <DetailRow label="Email" value={employee.email} />
         <DetailRow label="Role" value={employee.role} />
+        <DetailRow label="Department" value={employee.department?.name ?? '—'} />
         <DetailRow label="Designation" value={employee.designation ?? '—'} />
         <DetailRow label="Reporting Person" value={employee.manager?.fullName ?? '—'} />
+        <DetailRow
+          label="Date of joining"
+          value={employee.joiningDate ? new Date(employee.joiningDate).toLocaleDateString() : '—'}
+        />
+        <DetailRow
+          label="Date of leaving"
+          value={employee.leavingDate ? new Date(employee.leavingDate).toLocaleDateString() : '—'}
+        />
         <DetailRow label="Portal access" value={hasPortalAccess ? 'Active' : employee.invitedAt ? 'Invited' : 'Not invited'} />
       </dl>
+
+      <div className="mt-6 border-t border-border pt-4">
+        <p className="mb-3 text-sm font-medium text-ink">Additional details</p>
+        <dl className="grid grid-cols-2 gap-4">
+          <DetailRow label="Employee code" value={employee.employeeCode ?? '—'} />
+          <DetailRow label="Phone" value={employee.phone ?? '—'} />
+          <DetailRow
+            label="Date of birth"
+            value={employee.dateOfBirth ? new Date(employee.dateOfBirth).toLocaleDateString() : '—'}
+          />
+          <DetailRow label="Gender" value={employee.gender ?? '—'} />
+          <DetailRow label="Emergency contact name" value={employee.emergencyContactName ?? '—'} />
+          <DetailRow label="Emergency contact phone" value={employee.emergencyContactPhone ?? '—'} />
+          <div className="col-span-2">
+            <DetailRow label="Address" value={employee.address ?? '—'} />
+          </div>
+        </dl>
+      </div>
       {canManageEmployees && !hasPortalAccess && <InviteToPortal employeeId={employee.id} />}
       {canManageEmployees && <DocumentsPanel employeeId={employee.id} />}
     </div>

@@ -1,10 +1,16 @@
-export const EMPLOYEE_ROLES = ['ADMIN', 'HR', 'MANAGER', 'EMPLOYEE'] as const
+export const EMPLOYEE_ROLES = ['ADMIN', 'EMPLOYEE'] as const
 export type EmployeeRole = (typeof EMPLOYEE_ROLES)[number]
 
-// The backend only allows creating/editing employees into these three roles —
-// ADMIN is assigned exclusively at company registration.
-export const CREATABLE_EMPLOYEE_ROLES = ['HR', 'MANAGER', 'EMPLOYEE'] as const
+// Two-role model — the create/edit form offers the same set the type allows,
+// unlike the old HR/MANAGER/EMPLOYEE scheme where ADMIN was registration-only.
+export const CREATABLE_EMPLOYEE_ROLES = ['ADMIN', 'EMPLOYEE'] as const
 export type CreatableEmployeeRole = (typeof CREATABLE_EMPLOYEE_ROLES)[number]
+
+export interface Department {
+  id: string
+  name: string
+  isActive: boolean
+}
 
 export interface Employee {
   id: string
@@ -16,6 +22,17 @@ export interface Employee {
   role: EmployeeRole
   invitedAt: string | null
   managerId: string | null
+  departmentId: string | null
+  department: { id: string; name: string } | null
+  joiningDate: string | null
+  leavingDate: string | null
+  employeeCode: string | null
+  phone: string | null
+  dateOfBirth: string | null
+  gender: string | null
+  address: string | null
+  emergencyContactName: string | null
+  emergencyContactPhone: string | null
   createdAt: string
   updatedAt: string
   manager: { id: string; fullName: string } | null
@@ -34,6 +51,16 @@ export interface CreateEmployeeInput {
   role: CreatableEmployeeRole
   designation?: string
   managerId?: string
+  departmentId?: string
+  joiningDate?: string
+  leavingDate?: string
+  employeeCode?: string
+  phone?: string
+  dateOfBirth?: string
+  gender?: string
+  address?: string
+  emergencyContactName?: string
+  emergencyContactPhone?: string
 }
 
 export interface UpdateEmployeeInput {
@@ -42,6 +69,25 @@ export interface UpdateEmployeeInput {
   role?: CreatableEmployeeRole
   designation?: string | null
   managerId?: string | null
+  departmentId?: string | null
+  joiningDate?: string | null
+  leavingDate?: string | null
+  employeeCode?: string | null
+  phone?: string | null
+  dateOfBirth?: string | null
+  gender?: string | null
+  address?: string | null
+  emergencyContactName?: string | null
+  emergencyContactPhone?: string | null
+}
+
+export interface CreateDepartmentInput {
+  name: string
+}
+
+export interface UpdateDepartmentInput {
+  name?: string
+  isActive?: boolean
 }
 
 export interface Invitation {

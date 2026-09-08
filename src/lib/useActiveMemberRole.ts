@@ -1,24 +1,21 @@
 import { useQuery } from '@tanstack/react-query'
 import { authClient } from './auth-client'
 
-// Better Auth's org member role (lowercase: admin/hr/manager/employee) is kept
-// in 1:1 correspondence with the backend's EmployeeRole enum — see
+// Better Auth's org member role (lowercase: admin/employee) is kept in 1:1
+// correspondence with the backend's two-role EmployeeRole enum — see
 // toOrgRole/toEmployeeRole in the backend's src/lib/invitations.ts. Reading it
 // here avoids needing a dedicated "my employee record" endpoint just to know
-// whether to show ADMIN/HR-only controls. The backend re-checks the real
+// whether to show ADMIN-only controls. The backend re-checks the real
 // Employee.role on every request, so this is convenience gating only.
 //
-// "owner" is Better Auth's own built-in role, not one of the four custom
-// ones — the user who registered the company keeps it (see registerCompany.ts)
-// even though their domain Employee.role is "ADMIN". Must be treated the same
-// as "admin" here or the org's own creator loses access to this UI.
-const MANAGER_ORG_ROLES = new Set(['owner', 'admin', 'hr'])
-
-// Approvals are gated wider than employee management — MANAGER can approve or
-// reject both leave requests and attendance regularizations (backend
-// APPROVER_ROLES in src/routes/leaveRequests.ts and src/routes/regularizations.ts)
-// even though MANAGER can't create/edit employees.
-const APPROVER_ORG_ROLES = new Set(['owner', 'admin', 'hr', 'manager'])
+// "owner" is Better Auth's own built-in role, not the custom "admin" one —
+// the user who registered the company keeps it (see registerCompany.ts) even
+// though their domain Employee.role is "ADMIN". Must be treated the same as
+// "admin" here or the org's own creator loses access to this UI.
+//
+// Employee management, approvals, and department management are all
+// ADMIN-only now that HR/MANAGER no longer exist as distinct roles.
+const ADMIN_ORG_ROLES = new Set(['owner', 'admin'])
 
 export function useActiveMemberRole() {
   const { data: session } = authClient.useSession()
@@ -36,9 +33,10 @@ export function useActiveMemberRole() {
   })
 
   const orgRole = data?.role
+  const isAdmin = Boolean(orgRole && ADMIN_ORG_ROLES.has(orgRole))
   return {
     isLoading: isPending,
-    canManageEmployees: Boolean(orgRole && MANAGER_ORG_ROLES.has(orgRole)),
-    canApproveRequests: Boolean(orgRole && APPROVER_ORG_ROLES.has(orgRole)),
+    canManageEmployees: isAdmin,
+    canApproveRequests: isAdmin,
   }
 }

@@ -14,6 +14,7 @@ import { CreateEmployeePage } from './pages/employees/CreateEmployeePage'
 import { EditEmployeePage } from './pages/employees/EditEmployeePage'
 import { PendingInvitationsPage } from './pages/employees/PendingInvitationsPage'
 import { OrgChartPage } from './pages/employees/OrgChartPage'
+import { DepartmentsPage } from './pages/employees/DepartmentsPage'
 import { MyLeavePage } from './pages/leave/MyLeavePage'
 import { ApplyLeavePage } from './pages/leave/ApplyLeavePage'
 import { LeaveApprovalsPage } from './pages/leave/LeaveApprovalsPage'
@@ -43,6 +44,7 @@ function App() {
             <Route path="/employees/:id" element={<EmployeeDetailPage />} />
             <Route path="/employees/:id/edit" element={<EditEmployeePage />} />
             <Route path="/invitations" element={<PendingInvitationsPage />} />
+            <Route path="/departments" element={<DepartmentsPage />} />
             <Route path="/leave" element={<MyLeavePage />} />
             <Route path="/leave/apply" element={<ApplyLeavePage />} />
             <Route path="/leave/approvals" element={<LeaveApprovalsPage />} />
