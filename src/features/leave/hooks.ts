@@ -14,6 +14,16 @@ export function useLeaveTypes() {
   })
 }
 
+export function useCreateLeaveType() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: api.createLeaveType,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: leaveTypesKey })
+    },
+  })
+}
+
 export function useMyLeaveBalances() {
   return useQuery({
     queryKey: myBalancesKey,

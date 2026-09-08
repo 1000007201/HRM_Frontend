@@ -107,20 +107,22 @@ export interface InvitationLink {
 }
 
 export const EMPLOYEE_DOCUMENT_TYPES = [
-  'ADDRESS_PROOF',
-  'MARKSHEET',
-  'IDENTITY_PROOF',
+  'GOV_ID',
+  'HIGHER_SECONDARY_MARKSHEET',
+  'GRADUATION_CERTIFICATE',
+  'PG_CERTIFICATE',
   'EXPERIENCE_CERTIFICATE',
   'RELIEVING_LETTER',
 ] as const
 export type EmployeeDocumentType = (typeof EMPLOYEE_DOCUMENT_TYPES)[number]
 
 export const EMPLOYEE_DOCUMENT_TYPE_LABELS: Record<EmployeeDocumentType, string> = {
-  ADDRESS_PROOF: 'Address proof',
-  MARKSHEET: 'Marksheet / degree',
-  IDENTITY_PROOF: 'Identity proof',
-  EXPERIENCE_CERTIFICATE: 'Experience certificate',
-  RELIEVING_LETTER: 'Relieving letter',
+  GOV_ID: 'Gov. ID',
+  HIGHER_SECONDARY_MARKSHEET: 'Higher Secondary marksheet',
+  GRADUATION_CERTIFICATE: 'Graduation certificate',
+  PG_CERTIFICATE: 'PG certificate',
+  EXPERIENCE_CERTIFICATE: 'Experience letter (previous company)',
+  RELIEVING_LETTER: 'Relieving letter (previous company)',
 }
 
 export interface EmployeeDocument {

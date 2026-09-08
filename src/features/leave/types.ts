@@ -1,12 +1,30 @@
 export const LEAVE_STATUSES = ['PENDING', 'APPROVED', 'REJECTED', 'CANCELLED'] as const
 export type LeaveStatus = (typeof LEAVE_STATUSES)[number]
 
+// Sent only on create — the backend has no stored "frequency" column. ANNUAL
+// sets accrualPerMonth == annualCap, so the whole cap is credited on the
+// first accrual run; MONTHLY spreads it evenly across the year. See
+// createLeaveType in the backend's leave module.
+export const LEAVE_ACCRUAL_FREQUENCIES = ['ANNUAL', 'MONTHLY'] as const
+export type LeaveAccrualFrequency = (typeof LEAVE_ACCRUAL_FREQUENCIES)[number]
+
+// accrualPerMonth comes over the wire as a string (Prisma Decimal serializes
+// via toJSON to a decimal string, not a number).
 export interface LeaveType {
   id: string
   name: string
   code: string
   accrualPerMonth: string
   annualCap: number
+  isPaid: boolean
+  allowHalfDay: boolean
+}
+
+export interface CreateLeaveTypeInput {
+  name: string
+  code: string
+  annualCap: number
+  accrualFrequency: LeaveAccrualFrequency
   isPaid: boolean
   allowHalfDay: boolean
 }

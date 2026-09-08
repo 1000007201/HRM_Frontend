@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Button } from '../../components/ui/Button'
 import { FormSelect } from '../../components/ui/FormSelect'
 import { Modal } from '../../components/ui/Modal'
@@ -30,6 +30,7 @@ export function EmployeesListPage() {
   const [departmentFilter, setDepartmentFilter] = useState('')
   const [isAddOpen, setIsAddOpen] = useState(false)
   const [addServerError, setAddServerError] = useState('')
+  const navigate = useNavigate()
   const { data, isPending, isError, error } = useEmployees(page, PAGE_SIZE)
   const { data: departmentData } = useDepartments()
   const { canManageEmployees } = useActiveMemberRole()
@@ -171,9 +172,13 @@ export function EmployeesListPage() {
               </thead>
               <tbody>
                 {filteredEmployees.map((employee) => (
-                  <tr key={employee.id} className="border-b border-border last:border-0 hover:bg-row-hover">
+                  <tr
+                    key={employee.id}
+                    onClick={() => navigate(`/employees/${employee.id}`)}
+                    className="cursor-pointer border-b border-border last:border-0 hover:bg-row-hover"
+                  >
                     <td className="py-2">
-                      <Link to={`/employees/${employee.id}`} className="text-primary hover:underline">
+                      <Link to={`/employees/${employee.id}`} className="text-primary hover:underline" onClick={(event) => event.stopPropagation()}>
                         {employee.fullName}
                       </Link>
                     </td>

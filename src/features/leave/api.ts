@@ -1,8 +1,23 @@
 import { apiFetch } from '../../lib/apiClient'
-import type { CreateLeaveRequestInput, LeaveBalance, LeaveRequest, LeaveStatus, LeaveType, PendingLeaveRequest } from './types'
+import type {
+  CreateLeaveRequestInput,
+  CreateLeaveTypeInput,
+  LeaveBalance,
+  LeaveRequest,
+  LeaveStatus,
+  LeaveType,
+  PendingLeaveRequest,
+} from './types'
 
 export function listLeaveTypes() {
   return apiFetch<{ leaveTypes: LeaveType[] }>('/leave/types')
+}
+
+export function createLeaveType(input: CreateLeaveTypeInput) {
+  return apiFetch<{ leaveType: LeaveType }>('/leave/types', {
+    method: 'POST',
+    body: JSON.stringify(input),
+  })
 }
 
 export function getMyLeaveBalances() {
