@@ -11,6 +11,7 @@ import {
   useEmployeeDocuments,
   useInvitationLink,
   useInviteEmployee,
+  useUpdateEmployee,
   useUploadEmployeeDocument,
 } from '../../features/employees/hooks'
 import { employeeDocumentDownloadUrl } from '../../features/employees/api'
@@ -19,6 +20,8 @@ import {
   EMPLOYEE_DOCUMENT_TYPE_LABELS,
   type EmployeeDocumentType,
 } from '../../features/employees/types'
+import { EmployeeStatusBadge } from '../../features/employees/StatusBadge'
+import { formatCalendarDate } from '../../features/employees/display'
 import { LoadingState } from '../../components/ui/Spinner'
 
 function formatFileSize(bytes: number): string {
@@ -186,6 +189,28 @@ function InviteToPortal({ employeeId }: { employeeId: string }) {
   )
 }
 
+function ToggleActiveButton({ employeeId, isActive }: { employeeId: string; isActive: boolean }) {
+  const updateEmployee = useUpdateEmployee(employeeId)
+
+  return (
+    <div>
+      <Button
+        variant="secondary"
+        fullWidth={false}
+        isLoading={updateEmployee.isPending}
+        onClick={() => updateEmployee.mutate({ isActive: !isActive })}
+      >
+        {isActive ? 'Deactivate' : 'Activate'}
+      </Button>
+      {updateEmployee.isError && (
+        <p className="mt-2 text-sm text-error">
+          {errorMessage(updateEmployee.error, 'Could not update this employee.')}
+        </p>
+      )}
+    </div>
+  )
+}
+
 export function EmployeeDetailPage() {
   const { id } = useParams<{ id: string }>()
   const { data, isPending, isError, error } = useEmployee(id!)
@@ -212,14 +237,20 @@ export function EmployeeDetailPage() {
         ← Back to employees
       </Link>
       <div className="mb-6 flex items-start justify-between">
-        <h1 className="text-lg font-semibold text-ink">{employee.fullName}</h1>
+        <div className="flex items-center gap-2">
+          <h1 className="text-lg font-semibold text-ink">{employee.fullName}</h1>
+          <EmployeeStatusBadge isActive={employee.isActive} />
+        </div>
         {canManageEmployees && (
-          <Link
-            to={`/employees/${employee.id}/edit`}
-            className="rounded-md border border-border px-3 py-1.5 text-sm text-ink-2 hover:bg-row-hover"
-          >
-            Edit
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link
+              to={`/employees/${employee.id}/edit`}
+              className="rounded-md border border-border px-3 py-1.5 text-sm text-ink-2 hover:bg-row-hover"
+            >
+              Edit
+            </Link>
+            <ToggleActiveButton employeeId={employee.id} isActive={employee.isActive} />
+          </div>
         )}
       </div>
       <dl className="grid grid-cols-2 gap-4">
@@ -228,14 +259,8 @@ export function EmployeeDetailPage() {
         <DetailRow label="Department" value={employee.department?.name ?? '—'} />
         <DetailRow label="Designation" value={employee.designation ?? '—'} />
         <DetailRow label="Reporting Person" value={employee.manager?.fullName ?? '—'} />
-        <DetailRow
-          label="Date of joining"
-          value={employee.joiningDate ? new Date(employee.joiningDate).toLocaleDateString() : '—'}
-        />
-        <DetailRow
-          label="Date of leaving"
-          value={employee.leavingDate ? new Date(employee.leavingDate).toLocaleDateString() : '—'}
-        />
+        <DetailRow label="Date of joining" value={formatCalendarDate(employee.joiningDate)} />
+        <DetailRow label="Date of leaving" value={formatCalendarDate(employee.leavingDate)} />
         <DetailRow label="Portal access" value={hasPortalAccess ? 'Active' : employee.invitedAt ? 'Invited' : 'Not invited'} />
       </dl>
 
@@ -244,10 +269,7 @@ export function EmployeeDetailPage() {
         <dl className="grid grid-cols-2 gap-4">
           <DetailRow label="Employee code" value={employee.employeeCode ?? '—'} />
           <DetailRow label="Phone" value={employee.phone ?? '—'} />
-          <DetailRow
-            label="Date of birth"
-            value={employee.dateOfBirth ? new Date(employee.dateOfBirth).toLocaleDateString() : '—'}
-          />
+          <DetailRow label="Date of birth" value={formatCalendarDate(employee.dateOfBirth)} />
           <DetailRow label="Gender" value={employee.gender ?? '—'} />
           <DetailRow label="Emergency contact name" value={employee.emergencyContactName ?? '—'} />
           <DetailRow label="Emergency contact phone" value={employee.emergencyContactPhone ?? '—'} />

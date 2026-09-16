@@ -5,8 +5,9 @@ import { Button } from '../../components/ui/Button'
 import { FormInput } from '../../components/ui/FormInput'
 import { errorMessage } from '../../lib/apiClient'
 import { useActiveMemberRole } from '../../lib/useActiveMemberRole'
-import { useCreateLeaveType, useLeaveTypes } from '../../features/leave/hooks'
+import { useCreateLeaveType, useLeaveTypes, useUpdateFloaterQuota } from '../../features/leave/hooks'
 import { leaveTypeFormSchema, type LeaveTypeFormValues } from '../../features/leave/validation'
+import type { LeaveType } from '../../features/leave/types'
 import { LoadingState } from '../../components/ui/Spinner'
 
 function AddLeaveTypeForm() {
@@ -108,6 +109,46 @@ function AddLeaveTypeForm() {
   )
 }
 
+// Inline editor for the one org-configurable number the floater type has:
+// how many floater leaves an employee gets a year. Everything else about a
+// leave type (name, code, accrual) has no edit endpoint yet, so this is
+// deliberately narrow rather than a general "edit leave type" form.
+function FloaterQuotaEditor({ leaveType }: { leaveType: LeaveType }) {
+  const updateFloaterQuota = useUpdateFloaterQuota()
+  const [value, setValue] = useState(String(leaveType.annualCap))
+  const parsed = Number(value)
+  const isValid = Number.isInteger(parsed) && parsed >= 1 && parsed <= 365
+  const isChanged = parsed !== leaveType.annualCap
+
+  return (
+    <div className="flex items-center gap-2">
+      <input
+        type="number"
+        min={1}
+        max={365}
+        value={value}
+        disabled={updateFloaterQuota.isPending}
+        onChange={(event) => setValue(event.target.value)}
+        className="w-16 rounded-md border border-border bg-white px-2 py-1 text-sm text-ink-2 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+      />
+      <span className="text-sm text-ink-2">days/year</span>
+      {isChanged && isValid && (
+        <Button
+          variant="secondary"
+          fullWidth={false}
+          isLoading={updateFloaterQuota.isPending}
+          onClick={() => updateFloaterQuota.mutate(parsed)}
+        >
+          Save
+        </Button>
+      )}
+      {updateFloaterQuota.isError && (
+        <span className="text-xs text-error">{errorMessage(updateFloaterQuota.error, 'Could not update the quota.')}</span>
+      )}
+    </div>
+  )
+}
+
 function LeaveTypeList() {
   const { data, isPending, isError, error } = useLeaveTypes()
 
@@ -134,13 +175,26 @@ function LeaveTypeList() {
         >
           <span className="flex-1 text-sm font-medium text-ink">{leaveType.name}</span>
           <span className="w-16 shrink-0 text-sm text-muted">{leaveType.code}</span>
-          <span className="w-28 shrink-0 text-sm text-ink-2">{leaveType.annualCap} days/year</span>
+          {leaveType.isFloater ? (
+            <FloaterQuotaEditor leaveType={leaveType} />
+          ) : (
+            <span className="w-28 shrink-0 text-sm text-ink-2">{leaveType.annualCap} days/year</span>
+          )}
           <span className="w-28 shrink-0 text-sm text-ink-2">
-            {Number(leaveType.accrualPerMonth) >= leaveType.annualCap ? 'All at once' : 'Month wise'}
+            {leaveType.allocationType === 'ANNUAL_GRANT'
+              ? 'Annual grant'
+              : Number(leaveType.accrualPerMonth) >= leaveType.annualCap
+                ? 'All at once'
+                : 'Month wise'}
           </span>
           {!leaveType.isPaid && (
             <span className="shrink-0 rounded-full bg-neutral px-2 py-0.5 text-xs font-medium text-neutral-ink">
               Unpaid
+            </span>
+          )}
+          {leaveType.isFloater && (
+            <span className="shrink-0 rounded-full bg-neutral px-2 py-0.5 text-xs font-medium text-neutral-ink">
+              Floater
             </span>
           )}
         </li>

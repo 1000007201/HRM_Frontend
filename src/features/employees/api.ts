@@ -19,6 +19,19 @@ export function listEmployees(page: number, pageSize: number) {
   return apiFetch<EmployeeListResult>(`/api/employees?page=${page}&pageSize=${pageSize}`)
 }
 
+// Backend caps pageSize at 100 (employees.routes.ts) — fetch every page and
+// flatten, for callers (dashboard stats) that need the whole org at once.
+const MAX_PAGE_SIZE = 100
+
+export async function listAllEmployees(): Promise<Employee[]> {
+  const firstPage = await listEmployees(1, MAX_PAGE_SIZE)
+  const totalPages = Math.ceil(firstPage.total / firstPage.pageSize)
+  const restPages = await Promise.all(
+    Array.from({ length: totalPages - 1 }, (_, index) => listEmployees(index + 2, MAX_PAGE_SIZE)),
+  )
+  return [firstPage, ...restPages].flatMap((result) => result.employees)
+}
+
 export function getEmployee(id: string) {
   return apiFetch<{ employee: Employee }>(`/api/employees/${id}`)
 }

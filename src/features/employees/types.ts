@@ -21,6 +21,7 @@ export interface Employee {
   designation: string | null
   role: EmployeeRole
   invitedAt: string | null
+  isActive: boolean
   managerId: string | null
   departmentId: string | null
   department: { id: string; name: string } | null
@@ -67,6 +68,7 @@ export interface UpdateEmployeeInput {
   fullName?: string
   email?: string
   role?: CreatableEmployeeRole
+  isActive?: boolean
   designation?: string | null
   managerId?: string | null
   departmentId?: string | null

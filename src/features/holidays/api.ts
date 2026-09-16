@@ -5,6 +5,10 @@ export function listHolidays(year: number) {
   return apiFetch<{ year: number; holidays: Holiday[] }>(`/holidays?year=${year}`)
 }
 
+export function listOptionalHolidays(year: number) {
+  return apiFetch<{ year: number; holidays: Holiday[] }>(`/holidays/optional?year=${year}`)
+}
+
 export function createHoliday(input: HolidayInput) {
   return apiFetch<{ holiday: Holiday }>('/holidays', {
     method: 'POST',

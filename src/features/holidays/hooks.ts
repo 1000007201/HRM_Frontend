@@ -3,11 +3,19 @@ import * as api from './api'
 import type { HolidayInput } from './types'
 
 const holidaysKey = (year: number) => ['holidays', year] as const
+const optionalHolidaysKey = (year: number) => ['holidays', 'optional', year] as const
 
 export function useHolidays(year: number) {
   return useQuery({
     queryKey: holidaysKey(year),
     queryFn: () => api.listHolidays(year),
+  })
+}
+
+export function useOptionalHolidays(year: number) {
+  return useQuery({
+    queryKey: optionalHolidaysKey(year),
+    queryFn: () => api.listOptionalHolidays(year),
   })
 }
 

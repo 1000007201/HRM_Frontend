@@ -42,7 +42,7 @@ function AddHolidayForm() {
     formState: { errors, isSubmitting },
   } = useForm<HolidayFormValues>({
     resolver: zodResolver(holidayFormSchema),
-    defaultValues: { date: '', name: '' },
+    defaultValues: { date: '', name: '', isOptional: false },
   })
 
   async function handleFormSubmit(values: HolidayFormValues) {
@@ -80,6 +80,10 @@ function AddHolidayForm() {
           errorMessage={errors.name?.message}
           {...register('name')}
         />
+        <label className="mb-4 flex items-center gap-1.5 self-center text-sm text-ink-2">
+          <input type="checkbox" disabled={isSubmitting} {...register('isOptional')} />
+          Optional (floater-eligible)
+        </label>
         <Button type="submit" className="mt-6" fullWidth={false} isLoading={isSubmitting}>
           Add
         </Button>
@@ -132,6 +136,11 @@ function HolidayList({ year, canManage }: { year: number; canManage: boolean }) 
                     {weekdayFormatter.format(new Date(holiday.date))}
                   </span>
                   <span className="flex-1 text-sm text-ink-2">{holiday.name}</span>
+                  {holiday.isOptional && (
+                    <span className="shrink-0 rounded-full bg-neutral px-2 py-0.5 text-xs font-medium text-neutral-ink">
+                      Optional
+                    </span>
+                  )}
                   {canManage && (
                     <Button
                       variant="secondary"

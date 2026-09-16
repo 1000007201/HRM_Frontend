@@ -81,6 +81,17 @@ export function FormSelect({
     if (value !== undefined) setInternalValue(String(value))
   }, [value])
 
+  // react-hook-form's register() sets the native <select>'s value
+  // imperatively (via its own ref callback) from useForm's defaultValues —
+  // it never passes a `value`/`defaultValue` prop, so without this the
+  // custom trigger's label stays stuck on the empty placeholder even though
+  // the underlying field is correctly populated. Runs once on mount, after
+  // RHF's ref callback has already set the DOM value.
+  useEffect(() => {
+    if (value === undefined && selectRef.current) setInternalValue(selectRef.current.value)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) setIsOpen(false)

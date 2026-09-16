@@ -20,6 +20,13 @@ export function createLeaveType(input: CreateLeaveTypeInput) {
   })
 }
 
+export function updateFloaterQuota(annualGrantDays: number) {
+  return apiFetch<{ leaveType: LeaveType }>('/admin/leave/floater/quota', {
+    method: 'PATCH',
+    body: JSON.stringify({ annualGrantDays }),
+  })
+}
+
 export function getMyLeaveBalances() {
   return apiFetch<{ year: number; balances: LeaveBalance[] }>('/leave/balances/me')
 }

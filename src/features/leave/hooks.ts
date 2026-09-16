@@ -24,6 +24,20 @@ export function useCreateLeaveType() {
   })
 }
 
+// Also invalidates balances — an updated quota re-syncs everyone's current-
+// year floater balance server-side (see updateFloaterQuota in the backend),
+// so this admin's own balance panel needs a refetch too, not just the list.
+export function useUpdateFloaterQuota() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (annualGrantDays: number) => api.updateFloaterQuota(annualGrantDays),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: leaveTypesKey })
+      queryClient.invalidateQueries({ queryKey: myBalancesKey })
+    },
+  })
+}
+
 export function useMyLeaveBalances() {
   return useQuery({
     queryKey: myBalancesKey,

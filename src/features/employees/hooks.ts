@@ -15,6 +15,13 @@ export function useEmployees(page: number, pageSize: number) {
   })
 }
 
+export function useAllEmployees() {
+  return useQuery({
+    queryKey: ['employees', 'all'],
+    queryFn: () => api.listAllEmployees(),
+  })
+}
+
 export function useEmployee(id: string) {
   return useQuery({
     queryKey: employeeKey(id),

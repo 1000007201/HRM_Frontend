@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router-dom'
 import { Button } from '../../components/ui/Button'
@@ -8,12 +8,25 @@ import { FormSelect } from '../../components/ui/FormSelect'
 import { errorMessage } from '../../lib/apiClient'
 import { useCreateLeaveRequest, useLeaveTypes, useMyLeaveBalances } from '../../features/leave/hooks'
 import { applyLeaveFormSchema, type ApplyLeaveFormValues } from '../../features/leave/validation'
+import { useOptionalHolidays } from '../../features/holidays/hooks'
 import { LoadingState } from '../../components/ui/Spinner'
+
+// Holiday.date is a UTC-midnight instant (see the note on Holiday in
+// features/holidays/types.ts) — timeZone: 'UTC' avoids rendering a day early
+// west of Greenwich, same fix as elsewhere in this app.
+const floaterDateFormatter = new Intl.DateTimeFormat(undefined, {
+  day: '2-digit',
+  month: 'short',
+  year: 'numeric',
+  timeZone: 'UTC',
+})
+const floaterDateKey = (isoDate: string): string => isoDate.slice(0, 10)
 
 export function ApplyLeavePage() {
   const navigate = useNavigate()
   const { data: leaveTypesData, isPending: isLeaveTypesPending, isError: isLeaveTypesError } = useLeaveTypes()
   const { data: balancesData } = useMyLeaveBalances()
+  const { data: optionalHolidaysData } = useOptionalHolidays(new Date().getUTCFullYear())
   const createLeaveRequest = useCreateLeaveRequest()
   const [serverError, setServerError] = useState('')
 
@@ -21,6 +34,7 @@ export function ApplyLeavePage() {
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<ApplyLeaveFormValues>({
     resolver: zodResolver(applyLeaveFormSchema),
@@ -33,8 +47,20 @@ export function ApplyLeavePage() {
 
   const selectedLeaveType = leaveTypesData?.leaveTypes.find((leaveType) => leaveType.id === leaveTypeId)
   const selectedBalance = balancesData?.balances.find((balance) => balance.leaveTypeId === leaveTypeId)
+  const isFloater = Boolean(selectedLeaveType?.isFloater)
+  const optionalHolidays = optionalHolidaysData?.holidays ?? []
   const isSingleDay = startDate.length > 0 && startDate === endDate
-  const canUseHalfDay = Boolean(selectedLeaveType?.allowHalfDay) && isSingleDay
+  const canUseHalfDay = !isFloater && Boolean(selectedLeaveType?.allowHalfDay) && isSingleDay
+
+  // Switching leave types clears whatever date/half-day state the other mode
+  // left behind, so a floater date picked earlier can't leak into a normal
+  // date-range request (or vice versa) after the employee changes their mind.
+  useEffect(() => {
+    setValue('startDate', '')
+    setValue('endDate', '')
+    setValue('isHalfDay', false)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [leaveTypeId])
 
   async function handleFormSubmit(values: ApplyLeaveFormValues) {
     setServerError('')
@@ -89,29 +115,48 @@ export function ApplyLeavePage() {
             Available: <span className="font-medium text-ink">{selectedBalance.availableDays}</span> days
           </p>
         )}
-        <div className="grid grid-cols-2 gap-4">
-          <FormInput
+        {isFloater ? (
+          <FormSelect
             id="startDate"
-            label="Start date"
-            type="date"
+            label="Optional holiday date"
             disabled={isSubmitting}
-            errorMessage={errors.startDate?.message}
-            {...register('startDate')}
-          />
-          <FormInput
-            id="endDate"
-            label="End date"
-            type="date"
-            disabled={isSubmitting}
-            errorMessage={errors.endDate?.message}
-            {...register('endDate')}
-          />
-        </div>
-        <label className="mb-4 flex items-center gap-2 text-sm text-ink-2">
-          <input type="checkbox" disabled={isSubmitting || !canUseHalfDay} {...register('isHalfDay')} />
-          Half-day{!canUseHalfDay && ' (single-day request only, if the leave type allows it)'}
-        </label>
-        {errors.isHalfDay && <p className="-mt-3 mb-4 text-sm text-error">{errors.isHalfDay.message}</p>}
+            errorMessage={errors.startDate?.message ?? errors.endDate?.message}
+            {...register('startDate', { onChange: (event) => setValue('endDate', event.target.value, { shouldValidate: true }) })}
+          >
+            <option value="">Select an optional holiday</option>
+            {optionalHolidays.map((holiday) => (
+              <option key={holiday.id} value={floaterDateKey(holiday.date)}>
+                {floaterDateFormatter.format(new Date(holiday.date))} — {holiday.name}
+              </option>
+            ))}
+          </FormSelect>
+        ) : (
+          <>
+            <div className="grid grid-cols-2 gap-4">
+              <FormInput
+                id="startDate"
+                label="Start date"
+                type="date"
+                disabled={isSubmitting}
+                errorMessage={errors.startDate?.message}
+                {...register('startDate')}
+              />
+              <FormInput
+                id="endDate"
+                label="End date"
+                type="date"
+                disabled={isSubmitting}
+                errorMessage={errors.endDate?.message}
+                {...register('endDate')}
+              />
+            </div>
+            <label className="mb-4 flex items-center gap-2 text-sm text-ink-2">
+              <input type="checkbox" disabled={isSubmitting || !canUseHalfDay} {...register('isHalfDay')} />
+              Half-day{!canUseHalfDay && ' (single-day request only, if the leave type allows it)'}
+            </label>
+            {errors.isHalfDay && <p className="-mt-3 mb-4 text-sm text-error">{errors.isHalfDay.message}</p>}
+          </>
+        )}
         <div className="mb-4">
           <label htmlFor="reason" className="mb-1 block text-sm font-medium text-ink-2">
             Reason (optional)

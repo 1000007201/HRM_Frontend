@@ -32,9 +32,12 @@ export function BulkAddHolidays({ year }: { year: number }) {
     event.target.value = ''
   }
 
+  // The paste/CSV format is date + name only — bulk-added holidays are
+  // always non-optional closures. Add an optional (floater-eligible) one
+  // individually via the form above.
   function handleSubmit() {
     bulkCreateHolidays.mutate(
-      validRows.map((row) => ({ date: row.date, name: row.name })),
+      validRows.map((row) => ({ date: row.date, name: row.name, isOptional: false })),
       { onSuccess: () => setText('') },
     )
   }
@@ -46,7 +49,8 @@ export function BulkAddHolidays({ year }: { year: number }) {
       <p className="mb-1 text-sm font-medium text-ink">Bulk add</p>
       <p className="mb-3 text-xs text-muted">
         One holiday per line as <span className="font-medium text-ink-2">YYYY-MM-DD, Holiday Name</span> — paste a month or a
-        whole year. Existing dates are updated rather than duplicated.
+        whole year. Existing dates are updated rather than duplicated. Bulk-added holidays are never optional — add an
+        optional (floater-eligible) holiday individually above.
       </p>
 
       <textarea

@@ -7,6 +7,8 @@ import { ApiError, errorMessage } from '../../lib/apiClient'
 import { useActiveMemberRole } from '../../lib/useActiveMemberRole'
 import { useCreateEmployee, useDepartments, useEmployees } from '../../features/employees/hooks'
 import { EMPLOYEE_ROLES, type EmployeeRole } from '../../features/employees/types'
+import { EmployeeStatusBadge } from '../../features/employees/StatusBadge'
+import { formatCalendarDate } from '../../features/employees/display'
 import { EmployeeForm } from '../../features/employees/EmployeeForm'
 import type { EmployeeFormValues } from '../../features/employees/validation'
 import { LoadingState } from '../../components/ui/Spinner'
@@ -19,8 +21,10 @@ function portalStatusLabel(hasUser: boolean, invitedAt: string | null) {
   return 'Not invited'
 }
 
-function formatDate(value: string | null): string {
-  return value ? new Date(value).toLocaleDateString() : '—'
+function daysSinceJoined(joiningDate: string | null): string {
+  if (!joiningDate) return '—'
+  const days = Math.floor((Date.now() - new Date(joiningDate).getTime()) / (1000 * 60 * 60 * 24))
+  return `${days} day${days === 1 ? '' : 's'}`
 }
 
 export function EmployeesListPage() {
@@ -28,6 +32,7 @@ export function EmployeesListPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [roleFilter, setRoleFilter] = useState<EmployeeRole | ''>('')
   const [departmentFilter, setDepartmentFilter] = useState('')
+  const [statusFilter, setStatusFilter] = useState<'' | 'active' | 'inactive'>('')
   const [isAddOpen, setIsAddOpen] = useState(false)
   const [addServerError, setAddServerError] = useState('')
   const navigate = useNavigate()
@@ -71,9 +76,11 @@ export function EmployeesListPage() {
       const matchesTerm = term === '' || employee.fullName.toLowerCase().includes(term) || employee.email.toLowerCase().includes(term)
       const matchesRole = roleFilter === '' || employee.role === roleFilter
       const matchesDepartment = departmentFilter === '' || employee.departmentId === departmentFilter
-      return matchesTerm && matchesRole && matchesDepartment
+      const matchesStatus =
+        statusFilter === '' || (statusFilter === 'active' ? employee.isActive : !employee.isActive)
+      return matchesTerm && matchesRole && matchesDepartment && matchesStatus
     })
-  }, [data, searchTerm, roleFilter, departmentFilter])
+  }, [data, searchTerm, roleFilter, departmentFilter, statusFilter])
 
   if (isPending) {
     return <LoadingState />
@@ -151,6 +158,17 @@ export function EmployeesListPage() {
                 </option>
               ))}
             </FormSelect>
+            <FormSelect
+              id="statusFilter"
+              label="Status"
+              className="w-36"
+              value={statusFilter}
+              onChange={(event) => setStatusFilter(event.target.value as 'active' | 'inactive' | '')}
+            >
+              <option value="">All statuses</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </FormSelect>
           </div>
 
           {filteredEmployees.length === 0 ? (
@@ -166,7 +184,9 @@ export function EmployeesListPage() {
                   <th className="py-2 font-medium">Designation</th>
                   <th className="py-2 font-medium">Reporting Person</th>
                   <th className="py-2 font-medium">Date of joining</th>
+                  <th className="py-2 font-medium">Days since joining</th>
                   <th className="py-2 font-medium">Date of leaving</th>
+                  <th className="py-2 font-medium">Status</th>
                   <th className="py-2 font-medium">Portal access</th>
                 </tr>
               </thead>
@@ -187,8 +207,12 @@ export function EmployeesListPage() {
                     <td className="py-2 text-ink-2">{employee.department?.name ?? '—'}</td>
                     <td className="py-2 text-ink-2">{employee.designation ?? '—'}</td>
                     <td className="py-2 text-ink-2">{employee.manager?.fullName ?? '—'}</td>
-                    <td className="py-2 text-ink-2">{formatDate(employee.joiningDate)}</td>
-                    <td className="py-2 text-ink-2">{formatDate(employee.leavingDate)}</td>
+                    <td className="py-2 text-ink-2">{formatCalendarDate(employee.joiningDate)}</td>
+                    <td className="py-2 text-ink-2">{daysSinceJoined(employee.joiningDate)}</td>
+                    <td className="py-2 text-ink-2">{formatCalendarDate(employee.leavingDate)}</td>
+                    <td className="py-2">
+                      <EmployeeStatusBadge isActive={employee.isActive} />
+                    </td>
                     <td className="py-2 text-ink-2">{portalStatusLabel(employee.userId !== null, employee.invitedAt)}</td>
                   </tr>
                 ))}

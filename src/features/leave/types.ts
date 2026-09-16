@@ -8,8 +8,11 @@ export type LeaveStatus = (typeof LEAVE_STATUSES)[number]
 export const LEAVE_ACCRUAL_FREQUENCIES = ['ANNUAL', 'MONTHLY'] as const
 export type LeaveAccrualFrequency = (typeof LEAVE_ACCRUAL_FREQUENCIES)[number]
 
-// accrualPerMonth comes over the wire as a string (Prisma Decimal serializes
-// via toJSON to a decimal string, not a number).
+export const LEAVE_ALLOCATION_TYPES = ['MONTHLY_ACCRUAL', 'ANNUAL_GRANT'] as const
+export type LeaveAllocationType = (typeof LEAVE_ALLOCATION_TYPES)[number]
+
+// accrualPerMonth/annualGrantDays come over the wire as strings (Prisma
+// Decimal serializes via toJSON to a decimal string, not a number).
 export interface LeaveType {
   id: string
   name: string
@@ -18,6 +21,13 @@ export interface LeaveType {
   annualCap: number
   isPaid: boolean
   allowHalfDay: boolean
+  allocationType: LeaveAllocationType
+  annualGrantDays: string | null
+  // Read-only — set only by the backend-seeded floater leave type, not
+  // creatable via the form below. When true, Apply Leave restricts its date
+  // picker to the org's optional holiday dates instead of a free range, and
+  // the backend rejects a request against it for any other date.
+  isFloater: boolean
 }
 
 export interface CreateLeaveTypeInput {

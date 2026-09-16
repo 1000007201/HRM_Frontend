@@ -5,6 +5,7 @@ import { z } from 'zod'
 export const holidayFormSchema = z.object({
   date: z.string().min(1, 'Date is required'),
   name: z.string().trim().min(1, 'Holiday name is required').max(200),
+  isOptional: z.boolean(),
 })
 
 export type HolidayFormValues = z.infer<typeof holidayFormSchema>
