@@ -23,6 +23,12 @@ import { HolidaysPage } from './pages/holidays/HolidaysPage'
 import { MyAttendancePage } from './pages/attendance/MyAttendancePage'
 import { HrDayViewPage } from './pages/attendance/HrDayViewPage'
 import { AttendanceApprovalsPage } from './pages/attendance/AttendanceApprovalsPage'
+import { MyExpensesPage } from './pages/expenses/MyExpensesPage'
+import { RaiseExpensePage } from './pages/expenses/RaiseExpensePage'
+import { ExpenseDetailPage } from './pages/expenses/ExpenseDetailPage'
+import { ExpenseApprovalsPage } from './pages/expenses/ExpenseApprovalsPage'
+import { AdminExpensesPage } from './pages/expenses/AdminExpensesPage'
+import { ExpenseTypesPage } from './pages/expenses/ExpenseTypesPage'
 
 function App() {
   return (
@@ -54,6 +60,12 @@ function App() {
             <Route path="/attendance" element={<MyAttendancePage />} />
             <Route path="/attendance/day" element={<HrDayViewPage />} />
             <Route path="/attendance/approvals" element={<AttendanceApprovalsPage />} />
+            <Route path="/expenses" element={<MyExpensesPage />} />
+            <Route path="/expenses/new" element={<RaiseExpensePage />} />
+            <Route path="/expenses/manager-approvals" element={<ExpenseApprovalsPage />} />
+            <Route path="/expenses/admin" element={<AdminExpensesPage />} />
+            <Route path="/expenses/types" element={<ExpenseTypesPage />} />
+            <Route path="/expenses/:id" element={<ExpenseDetailPage />} />
           </Route>
         </Route>
 

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import {
+  Banknote,
   Bell,
   Building2,
   Calendar,
@@ -16,14 +17,17 @@ import {
   LayoutGrid,
   List,
   Mail,
+  Receipt,
   Search,
   Sun,
   Users,
+  Wallet,
   type LucideIcon,
 } from 'lucide-react'
 import { Button } from '../ui/Button'
 import { authClient } from '../../lib/auth-client'
 import { useActiveMemberRole } from '../../lib/useActiveMemberRole'
+import { usePendingManagerExpenses } from '../../features/expenses/hooks'
 
 interface NavItem {
   to: string
@@ -52,6 +56,13 @@ export function AppLayout() {
   const queryClient = useQueryClient()
   const { data: session } = authClient.useSession()
   const { canManageEmployees, canApproveRequests } = useActiveMemberRole()
+  // Not role-gated like the other approver queues — any employee who's been
+  // named as someone's approving manager can act here, so visibility is
+  // "does my queue currently have anything in it" rather than a role check.
+  // Shares its query key with ExpenseApprovalsPage, so this costs one extra
+  // request per session, not one per render.
+  const { data: pendingManagerExpensesData } = usePendingManagerExpenses()
+  const canApproveExpenses = (pendingManagerExpensesData?.expenseRequests.length ?? 0) > 0
   const [organizationName, setOrganizationName] = useState('')
   const [orgStatus, setOrgStatus] = useState<OrgStatus>('loading')
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
@@ -159,6 +170,16 @@ export function AppLayout() {
         { to: '/attendance', label: 'My attendance', icon: Clock, end: true, show: true },
         { to: '/attendance/day', label: 'Attendance day view', icon: List, show: canManageEmployees },
         { to: '/attendance/approvals', label: 'Attendance approvals', icon: CheckSquare, show: canApproveRequests },
+      ],
+    },
+    {
+      label: 'Expenses',
+      items: [
+        { to: '/expenses/new', label: 'Raise expense', icon: Receipt, show: true },
+        { to: '/expenses', label: 'My expenses', icon: Wallet, end: true, show: true },
+        { to: '/expenses/manager-approvals', label: 'Expense approvals', icon: CheckCircle, show: canApproveExpenses },
+        { to: '/expenses/admin', label: 'Admin expenses', icon: Banknote, show: canManageEmployees },
+        { to: '/expenses/types', label: 'Expense types', icon: ClipboardList, show: canManageEmployees },
       ],
     },
   ]
