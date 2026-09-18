@@ -22,6 +22,7 @@ import {
 } from '../../features/employees/types'
 import { EmployeeStatusBadge } from '../../features/employees/StatusBadge'
 import { formatCalendarDate } from '../../features/employees/display'
+import { SalaryStructurePanel } from '../../features/salary/SalaryStructurePanel'
 import { LoadingState } from '../../components/ui/Spinner'
 
 function formatFileSize(bytes: number): string {
@@ -215,6 +216,7 @@ export function EmployeeDetailPage() {
   const { id } = useParams<{ id: string }>()
   const { data, isPending, isError, error } = useEmployee(id!)
   const { canManageEmployees } = useActiveMemberRole()
+  const [activeTab, setActiveTab] = useState<'overview' | 'salary'>('overview')
 
   if (isPending) {
     return <LoadingState />
@@ -232,7 +234,7 @@ export function EmployeeDetailPage() {
   const hasPortalAccess = employee.userId !== null
 
   return (
-    <div className="max-w-lg">
+    <div className={activeTab === 'salary' ? 'max-w-3xl' : 'max-w-lg'}>
       <Link to="/employees" className="mb-4 inline-block text-sm text-primary hover:underline">
         ← Back to employees
       </Link>
@@ -253,33 +255,57 @@ export function EmployeeDetailPage() {
           </div>
         )}
       </div>
-      <dl className="grid grid-cols-2 gap-4">
-        <DetailRow label="Email" value={employee.email} />
-        <DetailRow label="Role" value={employee.role} />
-        <DetailRow label="Department" value={employee.department?.name ?? '—'} />
-        <DetailRow label="Designation" value={employee.designation ?? '—'} />
-        <DetailRow label="Reporting Person" value={employee.manager?.fullName ?? '—'} />
-        <DetailRow label="Date of joining" value={formatCalendarDate(employee.joiningDate)} />
-        <DetailRow label="Date of leaving" value={formatCalendarDate(employee.leavingDate)} />
-        <DetailRow label="Portal access" value={hasPortalAccess ? 'Active' : employee.invitedAt ? 'Invited' : 'Not invited'} />
-      </dl>
 
-      <div className="mt-6 border-t border-border pt-4">
-        <p className="mb-3 text-sm font-medium text-ink">Additional details</p>
-        <dl className="grid grid-cols-2 gap-4">
-          <DetailRow label="Employee code" value={employee.employeeCode ?? '—'} />
-          <DetailRow label="Phone" value={employee.phone ?? '—'} />
-          <DetailRow label="Date of birth" value={formatCalendarDate(employee.dateOfBirth)} />
-          <DetailRow label="Gender" value={employee.gender ?? '—'} />
-          <DetailRow label="Emergency contact name" value={employee.emergencyContactName ?? '—'} />
-          <DetailRow label="Emergency contact phone" value={employee.emergencyContactPhone ?? '—'} />
-          <div className="col-span-2">
-            <DetailRow label="Address" value={employee.address ?? '—'} />
+      {canManageEmployees && (
+        <div className="mb-6 flex gap-2 border-b border-border">
+          {(['overview', 'salary'] as const).map((tab) => (
+            <button
+              key={tab}
+              type="button"
+              onClick={() => setActiveTab(tab)}
+              className={`-mb-px border-b-2 px-3 py-2 text-sm font-medium ${
+                activeTab === tab ? 'border-primary text-primary' : 'border-transparent text-ink-2 hover:text-ink'
+              }`}
+            >
+              {tab === 'overview' ? 'Overview' : 'Salary structure'}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {activeTab === 'salary' && canManageEmployees ? (
+        <SalaryStructurePanel employeeId={employee.id} />
+      ) : (
+        <>
+          <dl className="grid grid-cols-2 gap-4">
+            <DetailRow label="Email" value={employee.email} />
+            <DetailRow label="Role" value={employee.role} />
+            <DetailRow label="Department" value={employee.department?.name ?? '—'} />
+            <DetailRow label="Designation" value={employee.designation ?? '—'} />
+            <DetailRow label="Reporting Person" value={employee.manager?.fullName ?? '—'} />
+            <DetailRow label="Date of joining" value={formatCalendarDate(employee.joiningDate)} />
+            <DetailRow label="Date of leaving" value={formatCalendarDate(employee.leavingDate)} />
+            <DetailRow label="Portal access" value={hasPortalAccess ? 'Active' : employee.invitedAt ? 'Invited' : 'Not invited'} />
+          </dl>
+
+          <div className="mt-6 border-t border-border pt-4">
+            <p className="mb-3 text-sm font-medium text-ink">Additional details</p>
+            <dl className="grid grid-cols-2 gap-4">
+              <DetailRow label="Employee code" value={employee.employeeCode ?? '—'} />
+              <DetailRow label="Phone" value={employee.phone ?? '—'} />
+              <DetailRow label="Date of birth" value={formatCalendarDate(employee.dateOfBirth)} />
+              <DetailRow label="Gender" value={employee.gender ?? '—'} />
+              <DetailRow label="Emergency contact name" value={employee.emergencyContactName ?? '—'} />
+              <DetailRow label="Emergency contact phone" value={employee.emergencyContactPhone ?? '—'} />
+              <div className="col-span-2">
+                <DetailRow label="Address" value={employee.address ?? '—'} />
+              </div>
+            </dl>
           </div>
-        </dl>
-      </div>
-      {canManageEmployees && !hasPortalAccess && <InviteToPortal employeeId={employee.id} />}
-      {canManageEmployees && <DocumentsPanel employeeId={employee.id} />}
+          {canManageEmployees && !hasPortalAccess && <InviteToPortal employeeId={employee.id} />}
+          {canManageEmployees && <DocumentsPanel employeeId={employee.id} />}
+        </>
+      )}
     </div>
   )
 }

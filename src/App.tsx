@@ -20,6 +20,7 @@ import { ApplyLeavePage } from './pages/leave/ApplyLeavePage'
 import { LeaveApprovalsPage } from './pages/leave/LeaveApprovalsPage'
 import { LeaveTypesPage } from './pages/leave/LeaveTypesPage'
 import { HolidaysPage } from './pages/holidays/HolidaysPage'
+import { SalaryComponentsPage } from './pages/salary/SalaryComponentsPage'
 import { MyAttendancePage } from './pages/attendance/MyAttendancePage'
 import { HrDayViewPage } from './pages/attendance/HrDayViewPage'
 import { AttendanceApprovalsPage } from './pages/attendance/AttendanceApprovalsPage'
@@ -66,6 +67,7 @@ function App() {
             <Route path="/expenses/admin" element={<AdminExpensesPage />} />
             <Route path="/expenses/types" element={<ExpenseTypesPage />} />
             <Route path="/expenses/:id" element={<ExpenseDetailPage />} />
+            <Route path="/salary-components" element={<SalaryComponentsPage />} />
           </Route>
         </Route>
 

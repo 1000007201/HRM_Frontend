@@ -12,6 +12,7 @@ import {
   ChevronRight,
   ClipboardList,
   Clock,
+  Coins,
   FilePlus,
   GitBranch,
   LayoutGrid,
@@ -181,6 +182,10 @@ export function AppLayout() {
         { to: '/expenses/admin', label: 'Admin expenses', icon: Banknote, show: canManageEmployees },
         { to: '/expenses/types', label: 'Expense types', icon: ClipboardList, show: canManageEmployees },
       ],
+    },
+    {
+      label: 'Payroll',
+      items: [{ to: '/salary-components', label: 'Salary components', icon: Coins, show: canManageEmployees }],
     },
   ]
 
