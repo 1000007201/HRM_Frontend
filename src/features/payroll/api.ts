@@ -1,4 +1,5 @@
 import { apiFetch } from '../../lib/apiClient'
+import { API_BASE_URL } from '../../lib/auth-client'
 import type {
   CreatePayrollRunInput,
   EmployeePayslipListItem,
@@ -82,4 +83,18 @@ export function upsertTaxDeclaration(employeeId: string, input: UpsertTaxDeclara
     method: 'POST',
     body: JSON.stringify(input),
   })
+}
+
+// Session cookie rides along on a plain top-level navigation, same as
+// employeeDocumentDownloadUrl — a normal <a href> rather than fetch+blob.
+export function payslipPdfDownloadUrl(employeeId: string, payslipId: string) {
+  return `${API_BASE_URL}/api/employees/${employeeId}/payslips/${payslipId}/pdf`
+}
+
+export function payslipsZipDownloadUrl(runId: string) {
+  return `${API_BASE_URL}/api/payroll-runs/${runId}/payslips/download-all`
+}
+
+export function regeneratePayslipPdfs(runId: string) {
+  return apiFetch<{ queued: boolean }>(`/api/payroll-runs/${runId}/payslips/regenerate-pdfs`, { method: 'POST' })
 }

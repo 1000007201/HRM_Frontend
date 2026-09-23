@@ -1,10 +1,12 @@
 import { useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import { Download } from 'lucide-react'
 import { Button } from '../../components/ui/Button'
 import { LoadingState } from '../../components/ui/Spinner'
 import { ApiError, errorMessage } from '../../lib/apiClient'
 import { useActiveMemberRole } from '../../lib/useActiveMemberRole'
 import { formatInr } from '../../features/expenses/display'
+import { payslipsZipDownloadUrl } from '../../features/payroll/api'
 import { formatPeriod } from '../../features/payroll/display'
 import {
   useApprovePayrollRun,
@@ -13,10 +15,13 @@ import {
   usePayrollRun,
   usePayslipsForRun,
   useProcessPayrollRun,
+  useRegeneratePayslipPdfs,
   useReprocessPayrollRun,
 } from '../../features/payroll/hooks'
 import { PayslipDetailModal } from '../../features/payroll/PayslipDetailModal'
 import { PayrollRunStatusBadge } from '../../features/payroll/StatusBadge'
+
+const PDF_AVAILABLE_STATUSES = new Set(['APPROVED', 'PAID'])
 
 function SummaryCard({ label, value }: { label: string; value: string }) {
   return (
@@ -39,7 +44,9 @@ export function PayrollRunDetailPage() {
   const approvePayrollRun = useApprovePayrollRun()
   const payPayrollRun = usePayPayrollRun()
   const cancelPayrollRun = useCancelPayrollRun()
+  const regeneratePayslipPdfs = useRegeneratePayslipPdfs()
   const [actionError, setActionError] = useState('')
+  const [regenerateMessage, setRegenerateMessage] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
   const [openPayslipId, setOpenPayslipId] = useState<string | null>(null)
 
@@ -74,6 +81,17 @@ export function PayrollRunDetailPage() {
       await action()
     } catch (error) {
       setActionError(errorMessage(error, 'Could not update this run.'))
+    }
+  }
+
+  async function handleRegenerate() {
+    setActionError('')
+    setRegenerateMessage('')
+    try {
+      await regeneratePayslipPdfs.mutateAsync(run.id)
+      setRegenerateMessage('PDF regeneration queued.')
+    } catch (error) {
+      setActionError(errorMessage(error, 'Could not queue PDF regeneration.'))
     }
   }
 
@@ -132,9 +150,26 @@ export function PayrollRunDetailPage() {
               Mark paid
             </Button>
           )}
+          {PDF_AVAILABLE_STATUSES.has(run.status) && (
+            <>
+              <a
+                href={payslipsZipDownloadUrl(run.id)}
+                className="flex items-center gap-1.5 rounded-md border border-border px-3.5 py-1.5 text-sm font-medium text-ink-2 hover:bg-row-hover"
+              >
+                <Download className="h-3.5 w-3.5" />
+                Download all (ZIP)
+              </a>
+              <Button variant="secondary" fullWidth={false} isLoading={regeneratePayslipPdfs.isPending} onClick={handleRegenerate}>
+                Regenerate PDFs
+              </Button>
+            </>
+          )}
         </div>
       </div>
       {actionError && <p className="mb-4 text-sm text-error">{actionError}</p>}
+      {regenerateMessage && (
+        <p className="mb-4 rounded-md border border-success bg-success-bg px-3 py-2 text-sm text-ink-2">{regenerateMessage}</p>
+      )}
 
       <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
         <SummaryCard label="Total gross" value={run.totalGross !== null ? formatInr(run.totalGross) : '—'} />

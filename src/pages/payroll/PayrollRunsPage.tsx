@@ -2,6 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
+import { Download } from 'lucide-react'
 import { Button } from '../../components/ui/Button'
 import { FormInput } from '../../components/ui/FormInput'
 import { FormSelect } from '../../components/ui/FormSelect'
@@ -10,6 +11,7 @@ import { LoadingState } from '../../components/ui/Spinner'
 import { errorMessage } from '../../lib/apiClient'
 import { useActiveMemberRole } from '../../lib/useActiveMemberRole'
 import { formatInr } from '../../features/expenses/display'
+import { payslipsZipDownloadUrl } from '../../features/payroll/api'
 import { formatPeriod, monthName } from '../../features/payroll/display'
 import {
   useApprovePayrollRun,
@@ -158,6 +160,16 @@ function RunActions({ run }: { run: PayrollRun }) {
           <Button fullWidth={false} isLoading={payPayrollRun.isPending} onClick={() => run_(() => payPayrollRun.mutateAsync(run.id))}>
             Mark paid
           </Button>
+        )}
+        {(run.status === 'APPROVED' || run.status === 'PAID') && (
+          <a
+            href={payslipsZipDownloadUrl(run.id)}
+            onClick={stop}
+            aria-label={`Download all payslips for ${formatPeriod(run.month, run.year)}`}
+            className="rounded-md p-1.5 text-ink-2 hover:bg-row-hover"
+          >
+            <Download className="h-4 w-4" />
+          </a>
         )}
       </div>
       {rowError && <p className="text-xs text-error">{rowError}</p>}

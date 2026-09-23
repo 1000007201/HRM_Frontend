@@ -1,6 +1,8 @@
 import { useState } from 'react'
+import { Download } from 'lucide-react'
 import { LoadingState } from '../../components/ui/Spinner'
 import { errorMessage } from '../../lib/apiClient'
+import { payslipPdfDownloadUrl } from './api'
 import { formatInr } from '../expenses/display'
 import { formatPeriod } from './display'
 import { useEmployeePayslips } from './hooks'
@@ -41,6 +43,14 @@ export function PayslipHistoryPanel({ employeeId }: { employeeId: string }) {
               >
                 View
               </button>
+              {/* This panel only ever lists APPROVED/PAID payslips (see listEmployeePayslips), so every row is downloadable. */}
+              <a
+                href={payslipPdfDownloadUrl(payslip.employeeId, payslip.id)}
+                aria-label={`Download PDF for ${formatPeriod(payslip.payrollRun.month, payslip.payrollRun.year)}`}
+                className="rounded-md p-1.5 text-ink-2 hover:bg-row-hover"
+              >
+                <Download className="h-3.5 w-3.5" />
+              </a>
             </div>
           </li>
         ))}

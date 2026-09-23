@@ -86,6 +86,12 @@ export function useCancelPayrollRun() {
   return useRunAction(api.cancelPayrollRun)
 }
 
+export function useRegeneratePayslipPdfs() {
+  return useMutation({
+    mutationFn: (runId: string) => api.regeneratePayslipPdfs(runId),
+  })
+}
+
 export function usePayslipsForRun(runId: string) {
   return useQuery({
     queryKey: runPayslipsKey(runId),

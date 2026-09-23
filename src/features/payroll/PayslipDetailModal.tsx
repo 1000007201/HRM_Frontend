@@ -1,10 +1,14 @@
+import { Download } from 'lucide-react'
 import { Modal } from '../../components/ui/Modal'
 import { LoadingState } from '../../components/ui/Spinner'
 import { errorMessage } from '../../lib/apiClient'
+import { payslipPdfDownloadUrl } from './api'
 import { formatInr } from '../expenses/display'
 import { usePayslip } from './hooks'
 import { formatPeriod } from './display'
 import type { PayslipComponent } from './types'
+
+const PDF_AVAILABLE_STATUSES = new Set(['APPROVED', 'PAID'])
 
 function ComponentRow({ component }: { component: PayslipComponent }) {
   return (
@@ -24,16 +28,27 @@ export function PayslipDetailModal({ runId, payslipId, onClose }: { runId: strin
       {isError && <p className="text-sm text-error">{errorMessage(error, 'Could not load this payslip.')}</p>}
       {data && (
         <div>
-          <div className="mb-4">
-            <p className="text-base font-semibold text-ink">{data.payslip.employee.fullName}</p>
-            <p className="text-sm text-muted">
-              {data.payslip.employee.employeeCode ?? '—'} · {data.payslip.employee.designation ?? '—'} ·{' '}
-              {data.payslip.employee.department?.name ?? '—'}
-            </p>
-            <p className="text-sm text-muted">{formatPeriod(data.payslip.payrollRun.month, data.payslip.payrollRun.year)}</p>
-            <p className="text-xs text-muted">
-              Paid days: {data.payslip.paidDays} / {data.payslip.daysInMonth} · LOP days: {data.payslip.lopDays}
-            </p>
+          <div className="mb-4 flex items-start justify-between gap-3">
+            <div>
+              <p className="text-base font-semibold text-ink">{data.payslip.employee.fullName}</p>
+              <p className="text-sm text-muted">
+                {data.payslip.employee.employeeCode ?? '—'} · {data.payslip.employee.designation ?? '—'} ·{' '}
+                {data.payslip.employee.department?.name ?? '—'}
+              </p>
+              <p className="text-sm text-muted">{formatPeriod(data.payslip.payrollRun.month, data.payslip.payrollRun.year)}</p>
+              <p className="text-xs text-muted">
+                Paid days: {data.payslip.paidDays} / {data.payslip.daysInMonth} · LOP days: {data.payslip.lopDays}
+              </p>
+            </div>
+            {PDF_AVAILABLE_STATUSES.has(data.payslip.payrollRun.status) && (
+              <a
+                href={payslipPdfDownloadUrl(data.payslip.employeeId, data.payslip.id)}
+                className="flex shrink-0 items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-sm text-ink-2 hover:bg-row-hover"
+              >
+                <Download className="h-3.5 w-3.5" />
+                Download PDF
+              </a>
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-6">
