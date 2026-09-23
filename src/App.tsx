@@ -21,6 +21,10 @@ import { LeaveApprovalsPage } from './pages/leave/LeaveApprovalsPage'
 import { LeaveTypesPage } from './pages/leave/LeaveTypesPage'
 import { HolidaysPage } from './pages/holidays/HolidaysPage'
 import { SalaryComponentsPage } from './pages/salary/SalaryComponentsPage'
+import { PayrollSettingsPage } from './pages/payroll/PayrollSettingsPage'
+import { PayrollRunsPage } from './pages/payroll/PayrollRunsPage'
+import { PayrollRunDetailPage } from './pages/payroll/PayrollRunDetailPage'
+import { MyPayrollPage } from './pages/payroll/MyPayrollPage'
 import { MyAttendancePage } from './pages/attendance/MyAttendancePage'
 import { HrDayViewPage } from './pages/attendance/HrDayViewPage'
 import { AttendanceApprovalsPage } from './pages/attendance/AttendanceApprovalsPage'
@@ -68,6 +72,10 @@ function App() {
             <Route path="/expenses/types" element={<ExpenseTypesPage />} />
             <Route path="/expenses/:id" element={<ExpenseDetailPage />} />
             <Route path="/salary-components" element={<SalaryComponentsPage />} />
+            <Route path="/payroll-settings" element={<PayrollSettingsPage />} />
+            <Route path="/payroll" element={<PayrollRunsPage />} />
+            <Route path="/payroll/:runId" element={<PayrollRunDetailPage />} />
+            <Route path="/my-payroll" element={<MyPayrollPage />} />
           </Route>
         </Route>
 

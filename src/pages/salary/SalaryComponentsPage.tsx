@@ -29,6 +29,26 @@ function toCreateInput(values: SalaryComponentFormValues) {
   }
 }
 
+// PUT needs explicit `null` (not `undefined`) for whichever of
+// fixedAmount/percentage/baseComponentId the chosen calcType doesn't use.
+// `undefined` gets dropped by JSON.stringify, and the backend's partial-update
+// merge treats an absent field as "keep the existing value" — so switching an
+// existing PERCENTAGE component to FIXED, say, would otherwise leave its old
+// percentage/baseComponentId in place and fail the backend's calcType-shape
+// check. The create schema doesn't accept `null` at all, hence a separate function.
+function toUpdateInput(values: SalaryComponentFormValues) {
+  return {
+    name: values.name,
+    code: values.code,
+    componentType: values.componentType,
+    calcType: values.calcType,
+    fixedAmount: values.calcType === 'FIXED' ? values.fixedAmount : null,
+    percentage: values.calcType === 'PERCENTAGE' ? values.percentage : null,
+    baseComponentId: values.calcType === 'PERCENTAGE' ? values.baseComponentId : null,
+    sequence: values.sequence,
+  }
+}
+
 function AddComponentModal({ nextSequence, onClose }: { nextSequence: number; onClose: () => void }) {
   const createSalaryComponent = useCreateSalaryComponent()
   const [serverError, setServerError] = useState('')
@@ -62,7 +82,7 @@ function EditComponentModal({ component, onClose }: { component: SalaryComponent
   async function handleSubmit(values: SalaryComponentFormValues) {
     setServerError('')
     try {
-      await updateSalaryComponent.mutateAsync({ id: component.id, input: toCreateInput(values) })
+      await updateSalaryComponent.mutateAsync({ id: component.id, input: toUpdateInput(values) })
       onClose()
     } catch (error) {
       setServerError(errorMessage(error, 'Could not save changes. Please try again.'))

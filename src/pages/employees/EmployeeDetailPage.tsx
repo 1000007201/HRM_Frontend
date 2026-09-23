@@ -23,6 +23,8 @@ import {
 import { EmployeeStatusBadge } from '../../features/employees/StatusBadge'
 import { formatCalendarDate } from '../../features/employees/display'
 import { SalaryStructurePanel } from '../../features/salary/SalaryStructurePanel'
+import { PayslipHistoryPanel } from '../../features/payroll/PayslipHistoryPanel'
+import { TaxDeclarationPanel } from '../../features/payroll/TaxDeclarationPanel'
 import { LoadingState } from '../../components/ui/Spinner'
 
 function formatFileSize(bytes: number): string {
@@ -216,7 +218,7 @@ export function EmployeeDetailPage() {
   const { id } = useParams<{ id: string }>()
   const { data, isPending, isError, error } = useEmployee(id!)
   const { canManageEmployees } = useActiveMemberRole()
-  const [activeTab, setActiveTab] = useState<'overview' | 'salary'>('overview')
+  const [activeTab, setActiveTab] = useState<'overview' | 'salary' | 'payslips' | 'tax'>('overview')
 
   if (isPending) {
     return <LoadingState />
@@ -234,7 +236,7 @@ export function EmployeeDetailPage() {
   const hasPortalAccess = employee.userId !== null
 
   return (
-    <div className={activeTab === 'salary' ? 'max-w-3xl' : 'max-w-lg'}>
+    <div className={activeTab === 'salary' || activeTab === 'payslips' || activeTab === 'tax' ? 'max-w-3xl' : 'max-w-lg'}>
       <Link to="/employees" className="mb-4 inline-block text-sm text-primary hover:underline">
         ← Back to employees
       </Link>
@@ -258,7 +260,7 @@ export function EmployeeDetailPage() {
 
       {canManageEmployees && (
         <div className="mb-6 flex gap-2 border-b border-border">
-          {(['overview', 'salary'] as const).map((tab) => (
+          {(['overview', 'salary', 'payslips', 'tax'] as const).map((tab) => (
             <button
               key={tab}
               type="button"
@@ -267,7 +269,13 @@ export function EmployeeDetailPage() {
                 activeTab === tab ? 'border-primary text-primary' : 'border-transparent text-ink-2 hover:text-ink'
               }`}
             >
-              {tab === 'overview' ? 'Overview' : 'Salary structure'}
+              {tab === 'overview'
+                ? 'Overview'
+                : tab === 'salary'
+                  ? 'Salary structure'
+                  : tab === 'payslips'
+                    ? 'Payslips'
+                    : 'Tax declaration'}
             </button>
           ))}
         </div>
@@ -275,6 +283,10 @@ export function EmployeeDetailPage() {
 
       {activeTab === 'salary' && canManageEmployees ? (
         <SalaryStructurePanel employeeId={employee.id} />
+      ) : activeTab === 'payslips' && canManageEmployees ? (
+        <PayslipHistoryPanel employeeId={employee.id} />
+      ) : activeTab === 'tax' && canManageEmployees ? (
+        <TaxDeclarationPanel employeeId={employee.id} />
       ) : (
         <>
           <dl className="grid grid-cols-2 gap-4">

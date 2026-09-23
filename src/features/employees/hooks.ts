@@ -29,6 +29,13 @@ export function useEmployee(id: string) {
   })
 }
 
+export function useMyEmployee() {
+  return useQuery({
+    queryKey: ['employees', 'me'],
+    queryFn: () => api.getMyEmployee(),
+  })
+}
+
 export function useCreateEmployee() {
   const queryClient = useQueryClient()
   return useMutation({

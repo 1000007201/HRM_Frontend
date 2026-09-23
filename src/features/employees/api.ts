@@ -36,6 +36,10 @@ export function getEmployee(id: string) {
   return apiFetch<{ employee: Employee }>(`/api/employees/${id}`)
 }
 
+export function getMyEmployee() {
+  return apiFetch<{ employee: Employee }>('/api/employees/me')
+}
+
 export function createEmployee(input: CreateEmployeeInput) {
   return apiFetch<{ employee: Employee }>('/api/employees', {
     method: 'POST',

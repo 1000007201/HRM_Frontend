@@ -20,6 +20,7 @@ import {
   Mail,
   Receipt,
   Search,
+  Settings,
   Sun,
   Users,
   Wallet,
@@ -185,7 +186,12 @@ export function AppLayout() {
     },
     {
       label: 'Payroll',
-      items: [{ to: '/salary-components', label: 'Salary components', icon: Coins, show: canManageEmployees }],
+      items: [
+        { to: '/my-payroll', label: 'My payroll', icon: Wallet, show: true },
+        { to: '/salary-components', label: 'Salary components', icon: Coins, show: canManageEmployees },
+        { to: '/payroll', label: 'Payroll runs', icon: Banknote, show: canManageEmployees },
+        { to: '/payroll-settings', label: 'Payroll settings', icon: Settings, show: canManageEmployees },
+      ],
     },
   ]
 
