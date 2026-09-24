@@ -174,50 +174,52 @@ export function EmployeesListPage() {
           {filteredEmployees.length === 0 ? (
             <p className="text-sm text-muted">No employees match your search.</p>
           ) : (
-            <table className="w-full text-left text-sm">
-              <thead>
-                <tr className="border-b border-border text-xs text-muted">
-                  <th className="py-2 font-medium">Name</th>
-                  <th className="py-2 font-medium">Email</th>
-                  <th className="py-2 font-medium">Role</th>
-                  <th className="py-2 font-medium">Department</th>
-                  <th className="py-2 font-medium">Designation</th>
-                  <th className="py-2 font-medium">Reporting Person</th>
-                  <th className="py-2 font-medium">Date of joining</th>
-                  <th className="py-2 font-medium">Days since joining</th>
-                  <th className="py-2 font-medium">Date of leaving</th>
-                  <th className="py-2 font-medium">Status</th>
-                  <th className="py-2 font-medium">Portal access</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredEmployees.map((employee) => (
-                  <tr
-                    key={employee.id}
-                    onClick={() => navigate(`/employees/${employee.id}`)}
-                    className="cursor-pointer border-b border-border last:border-0 hover:bg-row-hover"
-                  >
-                    <td className="py-2">
-                      <Link to={`/employees/${employee.id}`} className="text-primary hover:underline" onClick={(event) => event.stopPropagation()}>
-                        {employee.fullName}
-                      </Link>
-                    </td>
-                    <td className="py-2 text-ink-2">{employee.email}</td>
-                    <td className="py-2 text-ink-2">{employee.role}</td>
-                    <td className="py-2 text-ink-2">{employee.department?.name ?? '—'}</td>
-                    <td className="py-2 text-ink-2">{employee.designation ?? '—'}</td>
-                    <td className="py-2 text-ink-2">{employee.manager?.fullName ?? '—'}</td>
-                    <td className="py-2 text-ink-2">{formatCalendarDate(employee.joiningDate)}</td>
-                    <td className="py-2 text-ink-2">{daysSinceJoined(employee.joiningDate)}</td>
-                    <td className="py-2 text-ink-2">{formatCalendarDate(employee.leavingDate)}</td>
-                    <td className="py-2">
-                      <EmployeeStatusBadge isActive={employee.isActive} />
-                    </td>
-                    <td className="py-2 text-ink-2">{portalStatusLabel(employee.userId !== null, employee.invitedAt)}</td>
+            <div className="overflow-x-auto rounded-lg border border-border">
+              <table className="w-full min-w-[1200px] text-left text-sm [&_td]:whitespace-nowrap [&_td]:px-3 [&_td]:py-2.5 [&_th]:whitespace-nowrap [&_th]:px-3 [&_th]:py-2.5">
+                <thead>
+                  <tr className="border-b border-border bg-neutral text-xs text-ink-2">
+                    <th className="font-medium">Name</th>
+                    <th className="font-medium">Email</th>
+                    <th className="font-medium">Role</th>
+                    <th className="font-medium">Department</th>
+                    <th className="font-medium">Designation</th>
+                    <th className="font-medium">Reporting Person</th>
+                    <th className="font-medium">Date of joining</th>
+                    <th className="font-medium">Days since joining</th>
+                    <th className="font-medium">Date of leaving</th>
+                    <th className="font-medium">Status</th>
+                    <th className="font-medium">Portal access</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="bg-panel">
+                  {filteredEmployees.map((employee) => (
+                    <tr
+                      key={employee.id}
+                      onClick={() => navigate(`/employees/${employee.id}`)}
+                      className="cursor-pointer border-b border-border last:border-0 hover:bg-row-hover"
+                    >
+                      <td>
+                        <Link to={`/employees/${employee.id}`} className="text-primary hover:underline" onClick={(event) => event.stopPropagation()}>
+                          {employee.fullName}
+                        </Link>
+                      </td>
+                      <td className="text-ink-2">{employee.email}</td>
+                      <td className="text-ink-2">{employee.role}</td>
+                      <td className="text-ink-2">{employee.department?.name ?? '—'}</td>
+                      <td className="text-ink-2">{employee.designation ?? '—'}</td>
+                      <td className="text-ink-2">{employee.manager?.fullName ?? '—'}</td>
+                      <td className="text-ink-2">{formatCalendarDate(employee.joiningDate)}</td>
+                      <td className="text-ink-2">{daysSinceJoined(employee.joiningDate)}</td>
+                      <td className="text-ink-2">{formatCalendarDate(employee.leavingDate)}</td>
+                      <td>
+                        <EmployeeStatusBadge isActive={employee.isActive} />
+                      </td>
+                      <td className="text-ink-2">{portalStatusLabel(employee.userId !== null, employee.invitedAt)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
 
           <div className="mt-4 flex items-center justify-between text-sm text-muted">

@@ -42,7 +42,9 @@ export function computeLiveSalaryStructure(
 
   for (const component of sortedBySequence) {
     if (component.calcType === 'PERCENTAGE') {
-      const baseAnnual = component.baseComponentId ? (resolvedAnnualById.get(component.baseComponentId) ?? 0) : 0
+      // No base component = a percentage of the whole annual CTC (Basic Pay
+      // is usually defined this way), which needs no prior resolution.
+      const baseAnnual = component.baseComponentId ? (resolvedAnnualById.get(component.baseComponentId) ?? 0) : annualCtc
       resolvedAnnualById.set(component.id, (baseAnnual * (component.percentage ?? 0)) / 100)
     }
   }

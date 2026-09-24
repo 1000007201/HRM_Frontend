@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { CALC_TYPES, COMPONENT_TYPES } from './types'
+import { CALC_TYPES, COMPONENT_TYPES } from './types.ts'
 
 // Mirrors the backend's codeSchema (salaryComponents.routes.ts) — transformed
 // to uppercase before the pattern check so the user can type either case; the
@@ -34,13 +34,10 @@ export const salaryComponentFormSchema = z
     if (values.calcType === 'FIXED' && values.fixedAmount === undefined) {
       ctx.addIssue({ code: 'custom', path: ['fixedAmount'], message: 'Fixed amount is required' })
     }
-    if (values.calcType === 'PERCENTAGE') {
-      if (values.percentage === undefined) {
-        ctx.addIssue({ code: 'custom', path: ['percentage'], message: 'Percentage is required' })
-      }
-      if (!values.baseComponentId) {
-        ctx.addIssue({ code: 'custom', path: ['baseComponentId'], message: 'Select a base component' })
-      }
+    if (values.calcType === 'PERCENTAGE' && values.percentage === undefined) {
+      // An empty baseComponentId is a real answer here — "percentage of the
+      // annual CTC" — so only the percentage itself is required.
+      ctx.addIssue({ code: 'custom', path: ['percentage'], message: 'Percentage is required' })
     }
   })
 

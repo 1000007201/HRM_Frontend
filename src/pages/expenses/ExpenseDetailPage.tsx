@@ -12,7 +12,7 @@ import {
   useUploadExpenseAttachment,
 } from '../../features/expenses/hooks'
 import { expenseAttachmentDownloadUrl } from '../../features/expenses/api'
-import { formatInr, formatMoney } from '../../features/expenses/display'
+import { formatExpenseDate, formatInr, formatMoney } from '../../features/expenses/display'
 import { ExpenseStatusBadge } from '../../features/expenses/StatusBadge'
 
 const ALLOWED_BILL_TYPES = ['application/pdf', 'image/jpeg', 'image/png']
@@ -101,6 +101,10 @@ export function ExpenseDetailPage() {
       </div>
 
       <div className="mb-6 grid grid-cols-2 gap-4 rounded-2xl border border-border bg-canvas p-4 sm:grid-cols-3">
+        <div>
+          <p className="text-xs text-muted">Date of expense</p>
+          <p className="text-sm font-medium text-ink">{formatExpenseDate(expenseRequest.expenseDate)}</p>
+        </div>
         <div>
           <p className="text-xs text-muted">Amount</p>
           <p className="text-sm font-medium text-ink">{formatMoney(expenseRequest.amount, expenseRequest.currency)}</p>

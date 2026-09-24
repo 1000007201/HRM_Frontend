@@ -3,7 +3,7 @@ import { Button } from '../../components/ui/Button'
 import { LoadingState } from '../../components/ui/Spinner'
 import { errorMessage } from '../../lib/apiClient'
 import { useCancelExpenseRequest, useMyExpenses } from '../../features/expenses/hooks'
-import { formatInr, formatMoney } from '../../features/expenses/display'
+import { formatExpenseDate, formatInr, formatMoney } from '../../features/expenses/display'
 import { ExpenseStatusBadge } from '../../features/expenses/StatusBadge'
 
 export function MyExpensesPage() {
@@ -30,6 +30,7 @@ export function MyExpensesPage() {
           <table className="w-full text-left text-sm">
             <thead>
               <tr className="border-b border-border text-xs text-muted">
+                <th className="py-2 font-medium">Date</th>
                 <th className="py-2 font-medium">Type</th>
                 <th className="py-2 font-medium">Title</th>
                 <th className="py-2 font-medium">Amount</th>
@@ -41,6 +42,7 @@ export function MyExpensesPage() {
             <tbody>
               {data.expenseRequests.map((expenseRequest) => (
                 <tr key={expenseRequest.id} className="border-b border-border last:border-0 hover:bg-row-hover">
+                  <td className="py-2 text-ink-2">{formatExpenseDate(expenseRequest.expenseDate)}</td>
                   <td className="py-2 text-ink-2">{expenseRequest.expenseType.name}</td>
                   <td className="py-2 text-ink-2">
                     <Link to={`/expenses/${expenseRequest.id}`} className="text-primary hover:underline">

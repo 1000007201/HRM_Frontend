@@ -68,8 +68,13 @@ const monthLabelFormatter = new Intl.DateTimeFormat(undefined, { month: 'long', 
 
 export const formatMonthLabel = (monthKey: string): string => monthLabelFormatter.format(toUtcDate(`${monthKey}-01`))
 
-/** "YYYY-MM-DD" -> the UTC-midnight instant the backend means by that day. */
-export const toUtcDate = (dateKey: string): Date => new Date(`${dateKey}T00:00:00.000Z`)
+/**
+ * "YYYY-MM-DD" -> the UTC-midnight instant the backend means by that day.
+ * Also accepts a full ISO instant: derived-day endpoints send bare date keys,
+ * but rows with a real DateTime column (Regularization.date) serialize as
+ * "...T00:00:00.000Z", and concatenating onto that produced an Invalid Date.
+ */
+export const toUtcDate = (dateKey: string): Date => new Date(`${dateKey.slice(0, 10)}T00:00:00.000Z`)
 
 export const toMonthKey = (date: Date): string =>
   `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}`

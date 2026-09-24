@@ -30,6 +30,12 @@ export function SalaryComponentForm({
   } = useForm<SalaryComponentFormValues>({
     resolver: zodResolver(salaryComponentFormSchema),
     defaultValues: { componentType: 'EARNING', calcType: 'FIXED', sequence: 10, ...defaultValues },
+    // The amount/percentage inputs mount and unmount with calcType, and an
+    // empty number input reads back as NaN. Without this, switching FIXED ->
+    // PERCENTAGE still submits the abandoned fixedAmount: NaN, which fails
+    // validation on a field that is no longer on screen — so the form refused
+    // to submit with no visible error and nothing to focus.
+    shouldUnregister: true,
   })
 
   const calcType = watch('calcType')
@@ -125,7 +131,7 @@ export function SalaryComponentForm({
             errorMessage={errors.baseComponentId?.message}
             {...register('baseComponentId')}
           >
-            <option value="">Select a component</option>
+            <option value="">Annual CTC</option>
             {baseComponentOptions.map((component) => (
               <option key={component.id} value={component.id}>
                 {component.name}

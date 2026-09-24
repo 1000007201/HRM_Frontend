@@ -22,6 +22,10 @@ check('leading blanks for a Sunday 1st', leadingBlankCount('2026-02') === 0)
 check('parses a date key as UTC midnight', toUtcDate('2026-08-20').toISOString() === '2026-08-20T00:00:00.000Z')
 check('round-trips a date key', toDateKey(toUtcDate('2026-08-20')) === '2026-08-20')
 check('derives a month key', toMonthKey(toUtcDate('2026-08-20')) === '2026-08')
+check(
+  'accepts a full ISO instant for a calendar day',
+  toUtcDate('2026-08-20T00:00:00.000Z').toISOString() === '2026-08-20T00:00:00.000Z',
+)
 
 check('formats worked minutes', formatWorkedMinutes(450) === '7h 30m')
 check('pads minutes under ten', formatWorkedMinutes(305) === '5h 05m')

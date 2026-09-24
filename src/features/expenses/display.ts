@@ -9,6 +9,14 @@ export const EXPENSE_STATUS_LABELS: Record<ExpenseStatus, string> = {
   CANCELLED: 'Cancelled',
 }
 
+// @db.Date fields (expenseDate, rateDate) arrive as UTC midnight — format in
+// UTC or they render a day early. Same reason as employees/display.ts.
+const calendarDateFormatter = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeZone: 'UTC' })
+
+export function formatExpenseDate(value: string): string {
+  return calendarDateFormatter.format(new Date(value))
+}
+
 const inrFormatter = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' })
 
 export function formatInr(amount: string | number): string {

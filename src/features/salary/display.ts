@@ -8,7 +8,7 @@ export function describeComponentValue(component: SalaryComponent, baseComponent
     return `${formatInr(component.fixedAmount ?? 0)} / yr`
   }
   if (component.calcType === 'PERCENTAGE') {
-    return `${component.percentage}% of ${baseComponentName ?? '—'}`
+    return `${component.percentage}% of ${baseComponentName ?? 'annual CTC'}`
   }
   return 'Remaining balance'
 }

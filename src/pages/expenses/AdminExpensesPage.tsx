@@ -12,7 +12,7 @@ import {
   useInitiateExpensePayment,
   usePendingAdminExpenses,
 } from '../../features/expenses/hooks'
-import { formatInr, formatMoney } from '../../features/expenses/display'
+import { formatExpenseDate, formatInr, formatMoney } from '../../features/expenses/display'
 import type { ExpenseRequest } from '../../features/expenses/types'
 
 type Tab = 'pending-admin' | 'approved'
@@ -33,6 +33,7 @@ function PendingAdminRow({ expenseRequest }: { expenseRequest: ExpenseRequest })
           {expenseRequest.title}
         </Link>
       </td>
+      <td className="py-2 text-ink-2">{formatExpenseDate(expenseRequest.expenseDate)}</td>
       <td className="py-2 text-ink-2">{expenseRequest.expenseType.name}</td>
       <td className="py-2 text-ink-2">{formatMoney(expenseRequest.amount, expenseRequest.currency)}</td>
       <td className="py-2 text-ink-2">{formatInr(expenseRequest.amountInInr)}</td>
@@ -58,6 +59,7 @@ function ApprovedRow({ expenseRequest }: { expenseRequest: ExpenseRequest }) {
           {expenseRequest.title}
         </Link>
       </td>
+      <td className="py-2 text-ink-2">{formatExpenseDate(expenseRequest.expenseDate)}</td>
       <td className="py-2 text-ink-2">{expenseRequest.expenseType.name}</td>
       <td className="py-2 text-ink-2">{formatMoney(expenseRequest.amount, expenseRequest.currency)}</td>
       <td className="py-2 text-ink-2">{formatInr(expenseRequest.amountInInr)}</td>
@@ -128,6 +130,7 @@ function AdminExpenseTabs() {
               <tr className="border-b border-border text-xs text-muted">
                 <th className="py-2 font-medium">Employee</th>
                 <th className="py-2 font-medium">Title</th>
+                <th className="py-2 font-medium">Date</th>
                 <th className="py-2 font-medium">Type</th>
                 <th className="py-2 font-medium">Amount</th>
                 <th className="py-2 font-medium">INR equivalent</th>

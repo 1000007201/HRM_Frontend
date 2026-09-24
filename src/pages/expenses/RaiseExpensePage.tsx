@@ -16,7 +16,7 @@ import {
   useCurrencyRate,
   useExpenseTypes,
 } from '../../features/expenses/hooks'
-import { raiseExpenseFormSchema, type RaiseExpenseFormValues } from '../../features/expenses/validation'
+import { raiseExpenseFormSchema, todayIsoDate, type RaiseExpenseFormValues } from '../../features/expenses/validation'
 import { formatInr } from '../../features/expenses/display'
 
 const ALLOWED_BILL_TYPES = ['application/pdf', 'image/jpeg', 'image/png']
@@ -82,10 +82,14 @@ export function RaiseExpensePage() {
   const createExpenseRequest = useCreateExpenseRequest()
   const [serverError, setServerError] = useState('')
   const [billFiles, setBillFiles] = useState<File[]>([])
+  // Expenses saved without leaving the page, so someone filing a trip's worth
+  // of bills can see what already went in.
+  const [savedExpenses, setSavedExpenses] = useState<{ id: string; title: string }[]>([])
 
   const {
     register,
     handleSubmit,
+    reset,
     watch,
     formState: { errors, isSubmitting },
   } = useForm<RaiseExpenseFormValues>({
@@ -95,6 +99,9 @@ export function RaiseExpensePage() {
       approverManagerId: '',
       title: '',
       description: '',
+      // Most expenses are filed the day they're incurred — prefill today and
+      // let the rare backdated bill be corrected.
+      expenseDate: todayIsoDate(),
       // react-hook-form has no numeric input value until typed; the schema
       // still requires a positive number, so an untouched field fails
       // validation with a clear message rather than silently submitting 0.
@@ -115,7 +122,7 @@ export function RaiseExpensePage() {
       ? numericAmount * Number(rateQuery.data.inrPerUnit)
       : null
 
-  async function handleFormSubmit(values: RaiseExpenseFormValues) {
+  async function handleFormSubmit(values: RaiseExpenseFormValues, shouldAddAnother: boolean) {
     setServerError('')
     try {
       const { expenseRequest } = await createExpenseRequest.mutateAsync({
@@ -123,6 +130,7 @@ export function RaiseExpensePage() {
         approverManagerId: values.approverManagerId,
         title: values.title,
         description: values.description || undefined,
+        expenseDate: values.expenseDate,
         amount: values.amount,
         currency: values.currency,
       })
@@ -139,6 +147,15 @@ export function RaiseExpensePage() {
           navigate(`/expenses/${expenseRequest.id}`, { replace: true })
           return
         }
+      }
+
+      if (shouldAddAnother) {
+        setSavedExpenses((current) => [...current, { id: expenseRequest.id, title: values.title }])
+        setBillFiles([])
+        // Type, manager and currency usually repeat across a batch — only the
+        // per-expense fields are cleared.
+        reset({ ...values, title: '', description: '', amount: 0 })
+        return
       }
 
       navigate('/expenses', { replace: true })
@@ -161,7 +178,21 @@ export function RaiseExpensePage() {
         ← Back to my expenses
       </Link>
       <h1 className="mb-6 text-lg font-semibold text-ink">Raise an expense</h1>
-      <form onSubmit={handleSubmit(handleFormSubmit)}>
+      {savedExpenses.length > 0 && (
+        <div className="mb-4 rounded-md border border-border bg-canvas px-3 py-2 text-sm text-ink-2">
+          <p className="mb-1 font-medium text-ink">Added so far ({savedExpenses.length})</p>
+          <ul className="flex flex-col gap-1">
+            {savedExpenses.map((savedExpense) => (
+              <li key={savedExpense.id}>
+                <Link to={`/expenses/${savedExpense.id}`} className="text-primary hover:underline">
+                  {savedExpense.title}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      <form onSubmit={handleSubmit((values) => handleFormSubmit(values, false))}>
         {serverError && (
           <p className="mb-4 rounded-md border border-error bg-error-bg px-3 py-2 text-sm text-error">{serverError}</p>
         )}
@@ -186,6 +217,15 @@ export function RaiseExpensePage() {
           disabled={isSubmitting}
           errorMessage={errors.title?.message}
           {...register('title')}
+        />
+        <FormInput
+          id="expenseDate"
+          label="Date of expense"
+          type="date"
+          max={todayIsoDate()}
+          disabled={isSubmitting}
+          errorMessage={errors.expenseDate?.message}
+          {...register('expenseDate')}
         />
         <div className="grid grid-cols-2 gap-4">
           <FormInput
@@ -252,9 +292,20 @@ export function RaiseExpensePage() {
           {errors.description && <p className="mt-1 text-sm text-error">{errors.description.message}</p>}
         </div>
         <BillPicker files={billFiles} onChange={setBillFiles} />
-        <Button type="submit" isLoading={isSubmitting}>
-          Submit request
-        </Button>
+        <div className="flex gap-2">
+          <Button type="submit" fullWidth={false} isLoading={isSubmitting}>
+            {savedExpenses.length > 0 ? 'Submit and finish' : 'Submit request'}
+          </Button>
+          <Button
+            type="button"
+            variant="secondary"
+            fullWidth={false}
+            disabled={isSubmitting}
+            onClick={handleSubmit((values) => handleFormSubmit(values, true))}
+          >
+            Save and add another
+          </Button>
+        </div>
       </form>
     </div>
   )

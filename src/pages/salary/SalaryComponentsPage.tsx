@@ -24,7 +24,9 @@ function toCreateInput(values: SalaryComponentFormValues) {
     calcType: values.calcType,
     fixedAmount: values.calcType === 'FIXED' ? values.fixedAmount : undefined,
     percentage: values.calcType === 'PERCENTAGE' ? values.percentage : undefined,
-    baseComponentId: values.calcType === 'PERCENTAGE' ? values.baseComponentId : undefined,
+    // An empty base is "percentage of the annual CTC" — the backend reads
+    // that as a null baseComponentId, not as an empty string.
+    baseComponentId: values.calcType === 'PERCENTAGE' ? values.baseComponentId || undefined : undefined,
     sequence: values.sequence,
   }
 }
@@ -44,7 +46,7 @@ function toUpdateInput(values: SalaryComponentFormValues) {
     calcType: values.calcType,
     fixedAmount: values.calcType === 'FIXED' ? values.fixedAmount : null,
     percentage: values.calcType === 'PERCENTAGE' ? values.percentage : null,
-    baseComponentId: values.calcType === 'PERCENTAGE' ? values.baseComponentId : null,
+    baseComponentId: values.calcType === 'PERCENTAGE' ? values.baseComponentId || null : null,
     sequence: values.sequence,
   }
 }

@@ -49,6 +49,9 @@ export interface ExpenseRequest {
   id: string
   title: string
   description: string | null
+  // @db.Date — an ISO instant at UTC midnight, so format with timeZone: 'UTC'
+  // (formatCalendarDate) or it renders a day early west of Greenwich.
+  expenseDate: string
   amount: string
   currency: string
   exchangeRate: string
@@ -76,6 +79,8 @@ export interface CreateExpenseRequestInput {
   approverManagerId: string
   title: string
   description?: string
+  // "YYYY-MM-DD" — the backend coerces it to UTC midnight.
+  expenseDate: string
   amount: number
   currency: string
 }
