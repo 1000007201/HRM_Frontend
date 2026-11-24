@@ -85,6 +85,7 @@ const SIDEBAR_ENTRIES: SidebarEntry[] = [
       { to: '/attendance', label: 'My attendance', icon: Clock, end: true },
       { to: '/attendance/day', label: 'Attendance day view', icon: List, permission: 'manageEmployees' },
       { to: '/attendance/approvals', label: 'Attendance approvals', icon: CheckSquare, permission: 'approveRequests' },
+      { to: '/attendance/settings', label: 'Attendance settings', icon: Settings },
     ],
   },
   {

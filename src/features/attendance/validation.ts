@@ -38,3 +38,25 @@ export const markAttendanceFormSchema = z
   })
 
 export type MarkAttendanceFormValues = z.infer<typeof markAttendanceFormSchema>
+
+export const attendanceSettingsFormSchema = z
+  .object({
+    fullDayHours: z.number().int().min(0).max(23),
+    fullDayMinutes: z.number().int().min(0).max(59),
+    halfDayHours: z.number().int().min(0).max(23),
+    halfDayMinutes: z.number().int().min(0).max(59),
+    weekOffDays: z.array(z.number().int().min(0).max(6)),
+    allowRegularization: z.boolean(),
+    maxRegularizationsPerMonth: z.number().int().positive().nullable(),
+    regularizationWindowDays: z.number().int().positive().nullable(),
+  })
+  .refine(
+    (values) => {
+      const fullTotal = values.fullDayHours * 60 + values.fullDayMinutes
+      const halfTotal = values.halfDayHours * 60 + values.halfDayMinutes
+      return fullTotal > 0 && halfTotal > 0 && halfTotal < fullTotal
+    },
+    { message: 'Half-day hours must be less than full-day hours, and both must be greater than zero', path: ['halfDayHours'] },
+  )
+
+export type AttendanceSettingsFormValues = z.infer<typeof attendanceSettingsFormSchema>

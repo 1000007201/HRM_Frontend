@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import * as api from './api'
-import type { CreateRegularizationInput, MarkAttendanceInput, RegularizationStatus } from './types'
+import type { CreateRegularizationInput, MarkAttendanceInput, RegularizationStatus, UpdateAttendanceSettingsInput } from './types'
 
 export function useMyMonth(month: string) {
   return useQuery({
@@ -87,5 +87,20 @@ export function useRejectRegularization() {
   return useMutation({
     mutationFn: ({ id, decisionNote }: { id: string; decisionNote?: string }) => api.rejectRegularization(id, decisionNote),
     onSuccess: invalidateAttendance,
+  })
+}
+
+export function useAttendanceSettings() {
+  return useQuery({
+    queryKey: ['attendance-settings'],
+    queryFn: () => api.getAttendanceSettings(),
+  })
+}
+
+export function useUpdateAttendanceSettings() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (input: UpdateAttendanceSettingsInput) => api.updateAttendanceSettings(input),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['attendance-settings'] }) },
   })
 }

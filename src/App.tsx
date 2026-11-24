@@ -28,6 +28,7 @@ import { MyPayrollPage } from './pages/payroll/MyPayrollPage'
 import { MyAttendancePage } from './pages/attendance/MyAttendancePage'
 import { HrDayViewPage } from './pages/attendance/HrDayViewPage'
 import { AttendanceApprovalsPage } from './pages/attendance/AttendanceApprovalsPage'
+import { AttendanceSettingsPage } from './pages/attendance/AttendanceSettingsPage'
 import { MyExpensesPage } from './pages/expenses/MyExpensesPage'
 import { RaiseExpensePage } from './pages/expenses/RaiseExpensePage'
 import { ExpenseDetailPage } from './pages/expenses/ExpenseDetailPage'
@@ -65,6 +66,7 @@ function App() {
             <Route path="/attendance" element={<MyAttendancePage />} />
             <Route path="/attendance/day" element={<HrDayViewPage />} />
             <Route path="/attendance/approvals" element={<AttendanceApprovalsPage />} />
+            <Route path="/attendance/settings" element={<AttendanceSettingsPage />} />
             <Route path="/expenses" element={<MyExpensesPage />} />
             <Route path="/expenses/new" element={<RaiseExpensePage />} />
             <Route path="/expenses/manager-approvals" element={<ExpenseApprovalsPage />} />

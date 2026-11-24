@@ -71,6 +71,28 @@ export interface PendingRegularization extends Regularization {
   }
 }
 
+export interface AttendanceSettings {
+  id: string
+  organizationId: string
+  fullDayMinutes: number
+  halfDayMinutes: number
+  weekOffDays: number[]
+  allowRegularization: boolean
+  maxRegularizationsPerMonth: number | null
+  regularizationWindowDays: number | null
+  createdAt: string
+  updatedAt: string
+}
+
+export interface UpdateAttendanceSettingsInput {
+  fullDayMinutes?: number
+  halfDayMinutes?: number
+  weekOffDays?: number[]
+  allowRegularization?: boolean
+  maxRegularizationsPerMonth?: number | null
+  regularizationWindowDays?: number | null
+}
+
 export interface MarkAttendanceInput {
   employeeId: string
   date: string

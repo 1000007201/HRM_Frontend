@@ -1,6 +1,7 @@
 import { apiFetch } from '../../lib/apiClient'
 import type {
   AttendanceRecord,
+  AttendanceSettings,
   CreateRegularizationInput,
   DerivedDay,
   MarkAttendanceInput,
@@ -8,6 +9,7 @@ import type {
   PendingRegularization,
   Regularization,
   RegularizationStatus,
+  UpdateAttendanceSettingsInput,
 } from './types'
 
 export function checkIn() {
@@ -72,5 +74,16 @@ export function rejectRegularization(id: string, decisionNote?: string) {
   return apiFetch<{ regularization: Regularization }>(`/attendance/regularizations/${id}/reject`, {
     method: 'POST',
     body: JSON.stringify({ decisionNote }),
+  })
+}
+
+export function getAttendanceSettings() {
+  return apiFetch<{ settings: AttendanceSettings }>('/attendance/settings')
+}
+
+export function updateAttendanceSettings(input: UpdateAttendanceSettingsInput) {
+  return apiFetch<{ settings: AttendanceSettings }>('/attendance/settings', {
+    method: 'PATCH',
+    body: JSON.stringify(input),
   })
 }
