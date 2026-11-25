@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import {
@@ -13,10 +13,11 @@ import {
   ClipboardList,
   Clock,
   Coins,
-  FilePlus,
   GitBranch,
   LayoutGrid,
   List,
+  LogIn,
+  LogOut,
   Mail,
   Receipt,
   Search,
@@ -26,13 +27,15 @@ import {
   Wallet,
   type LucideIcon,
 } from 'lucide-react'
-import { Button } from '../ui/Button'
 import { authClient } from '../../lib/auth-client'
 import { useActiveMemberRole } from '../../lib/useActiveMemberRole'
 import { usePendingManagerExpenses } from '../../features/expenses/hooks'
+import { useCheckIn, useCheckOut, useMyMonth } from '../../features/attendance/hooks'
+import { formatClockTime, formatWorkedMinutes, todayDateKey, toMonthKey } from '../../features/attendance/display'
+import type { AttendanceStatus } from '../../features/attendance/types'
+import { errorMessage } from '../../lib/apiClient'
+import { Spinner } from '../ui/Spinner'
 
-// Which role check gates an item. Absent = visible to everyone; the booleans
-// themselves still come from useActiveMemberRole / the expense queue below.
 type NavPermission = 'manageEmployees' | 'approveRequests' | 'approveExpenses'
 
 interface NavItem {
@@ -45,7 +48,6 @@ interface NavItem {
 
 interface NavGroup {
   label: string
-  // Shown in the collapsed icon rail, where child labels have nowhere to go.
   icon: LucideIcon
   items: NavItem[]
 }
@@ -72,7 +74,6 @@ const SIDEBAR_ENTRIES: SidebarEntry[] = [
     label: 'Leave',
     icon: Sun,
     items: [
-      { to: '/leave/apply', label: 'Apply for leave', icon: FilePlus },
       { to: '/leave', label: 'My leave', icon: Sun, end: true },
       { to: '/leave/approvals', label: 'Leave approvals', icon: CheckCircle, permission: 'approveRequests' },
       { to: '/leave/types', label: 'Leave types', icon: ClipboardList, permission: 'manageEmployees' },
@@ -114,8 +115,6 @@ const SIDEBAR_ENTRIES: SidebarEntry[] = [
 
 const EXPANDED_GROUPS_STORAGE_KEY = 'sidebar-expanded-groups'
 
-// Longest matching `to` wins so /leave/apply resolves to its own item rather
-// than the /leave one it happens to be nested under.
 function findGroupLabelForPath(pathname: string): string | undefined {
   let matchedLabel: string | undefined
   let matchedLength = 0
@@ -148,6 +147,147 @@ const navLinkClassName =
       isCollapsed ? 'w-10 shrink-0 justify-center self-center px-0' : isChild ? 'py-2 pl-8 pr-3' : 'px-3'
     } ${isActive ? 'bg-active-pill-bg font-medium text-active-pill-ink shadow-sm' : 'text-ink-2 hover:bg-sidebar-hover'}`
 
+const NON_WORKING_STATUSES: Partial<Record<AttendanceStatus, true>> = {
+  WEEK_OFF: true,
+  HOLIDAY: true,
+  ON_LEAVE: true,
+}
+
+function CompactCheckIn() {
+  const month = toMonthKey(new Date())
+  const { data, isPending } = useMyMonth(month)
+  const checkIn = useCheckIn()
+  const checkOut = useCheckOut()
+  const [now, setNow] = useState(() => Date.now())
+
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), 1000)
+    return () => clearInterval(timer)
+  }, [])
+
+  if (isPending) {
+    return <Spinner size="sm" />
+  }
+
+  const today = data?.days.find((day) => day.date === todayDateKey())
+  if (!today) return null
+
+  const isNonWorking = today.status !== null && NON_WORKING_STATUSES[today.status]
+  if (isNonWorking) return null
+
+  const activeMutation = checkOut.isPending || checkOut.isError ? checkOut : checkIn
+  const punchError = activeMutation.isError
+    ? errorMessage(activeMutation.error, 'Failed')
+    : ''
+
+  if (today.checkInAt && today.checkOutAt) {
+    return (
+      <div className="flex items-center gap-2 rounded-full border border-border bg-success-bg/50 px-3 py-1">
+        <div className="h-2 w-2 rounded-full bg-success" />
+        <span className="text-xs font-medium text-success">Done · {formatWorkedMinutes(today.workedMinutes)}</span>
+      </div>
+    )
+  }
+
+  if (today.checkInAt) {
+    const elapsedSeconds = Math.max(0, Math.floor((now - new Date(today.checkInAt).getTime()) / 1000))
+    const hours = Math.floor(elapsedSeconds / 3600)
+    const minutes = Math.floor((elapsedSeconds % 3600) / 60)
+    const seconds = elapsedSeconds % 60
+    const elapsed = `${hours}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
+
+    return (
+      <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 rounded-full border border-success/20 bg-success-bg/50 px-3 py-1">
+          <div className="h-2 w-2 animate-pulse rounded-full bg-success" />
+          <span className="font-mono text-xs font-medium tabular-nums text-success">{elapsed}</span>
+        </div>
+        <button
+          type="button"
+          disabled={checkOut.isPending}
+          onClick={() => checkOut.mutate()}
+          className="flex items-center gap-1 rounded-full border border-border bg-white px-2.5 py-1 text-xs font-medium text-ink-2 hover:bg-row-hover disabled:opacity-50"
+          title={`Checked in at ${formatClockTime(today.checkInAt)}`}
+        >
+          <LogOut className="h-3 w-3" />
+          <span className="hidden sm:inline">Out</span>
+        </button>
+        {punchError && <span className="text-xs text-error">{punchError}</span>}
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex items-center gap-2">
+      <button
+        type="button"
+        disabled={checkIn.isPending}
+        onClick={() => checkIn.mutate()}
+        className="flex items-center gap-1.5 rounded-full bg-primary px-3 py-1 text-xs font-medium text-white hover:bg-primary-hover disabled:opacity-50"
+      >
+        <LogIn className="h-3 w-3" />
+        Check in
+      </button>
+      {punchError && <span className="text-xs text-error">{punchError}</span>}
+    </div>
+  )
+}
+
+function AvatarMenu({
+  initials,
+  userName,
+  userEmail,
+  onSignOut,
+}: {
+  initials: string
+  userName: string
+  userEmail: string
+  onSignOut: () => void
+}) {
+  const [isOpen, setIsOpen] = useState(false)
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) setIsOpen(false)
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  return (
+    <div className="relative" ref={containerRef}>
+      <button
+        type="button"
+        onClick={() => setIsOpen((current) => !current)}
+        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent text-sm font-semibold text-ink hover:ring-2 hover:ring-accent/30"
+        aria-label="User menu"
+      >
+        {initials || '?'}
+      </button>
+      {isOpen && (
+        <div className="absolute right-0 z-20 mt-2 w-56 rounded-xl border border-border bg-white py-1 shadow-lg">
+          <div className="border-b border-border px-4 py-3">
+            <p className="text-sm font-medium text-ink">{userName}</p>
+            <p className="text-xs text-muted">{userEmail}</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              setIsOpen(false)
+              onSignOut()
+            }}
+            className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-ink-2 hover:bg-row-hover"
+          >
+            <LogOut className="h-4 w-4" />
+            Sign out
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
 type OrgStatus = 'loading' | 'loaded' | 'error' | 'empty'
 
 export function AppLayout() {
@@ -156,11 +296,6 @@ export function AppLayout() {
   const queryClient = useQueryClient()
   const { data: session } = authClient.useSession()
   const { canManageEmployees, canApproveRequests } = useActiveMemberRole()
-  // Not role-gated like the other approver queues — any employee who's been
-  // named as someone's approving manager can act here, so visibility is
-  // "does my queue currently have anything in it" rather than a role check.
-  // Shares its query key with ExpenseApprovalsPage, so this costs one extra
-  // request per session, not one per render.
   const { data: pendingManagerExpensesData } = usePendingManagerExpenses()
   const canApproveExpenses = (pendingManagerExpensesData?.expenseRequests.length ?? 0) > 0
   const [organizationName, setOrganizationName] = useState('')
@@ -170,8 +305,6 @@ export function AppLayout() {
 
   const activeGroupLabel = findGroupLabelForPath(pathname)
 
-  // Open the group holding the current route (on first render and on every
-  // navigation) without collapsing anything the user opened themselves.
   useEffect(() => {
     if (!activeGroupLabel) return
     setExpandedGroups((current) =>
@@ -187,19 +320,8 @@ export function AppLayout() {
     }
   }, [expandedGroups])
 
-  // Keyed on the user id, not the whole `session` object — Better Auth's
-  // useSession() returns a new object reference on every background
-  // revalidation even when nothing actually changed, which was re-running
-  // this effect (and re-fetching the org) spontaneously. An AbortController
-  // cancels the in-flight request on cleanup instead of letting it resolve
-  // into a console-logged 401 if it's still running when the user signs out.
   const userId = session?.user.id
 
-  // Deliberately NOT depending on `session` itself (see the userId comment
-  // above); the effect always reads the current `session` via closure, which
-  // is fine since it bails out via `if (!session) return` and re-derives
-  // everything it needs. (oxlint's exhaustive-deps still flags this as a
-  // missing-dependency warning — harmless, doesn't fail `npm run lint`.)
   useEffect(() => {
     if (!session) return
     const controller = new AbortController()
@@ -208,9 +330,6 @@ export function AppLayout() {
 
     async function loadOrganization() {
       try {
-        // A plain sign-in doesn't restore activeOrganizationId the way registration does.
-        // Every user belongs to exactly one org at this stage, so auto-select it rather
-        // than showing "no organization" after every normal sign-in.
         let activeOrganizationId = session!.session.activeOrganizationId
         if (!activeOrganizationId) {
           const { data: organizations } = await authClient.organization.list({ fetchOptions })
@@ -237,9 +356,6 @@ export function AppLayout() {
         setOrganizationName(data.name)
         setOrgStatus('loaded')
       } catch {
-        // Expected when cleanup aborts an in-flight call — React StrictMode's
-        // dev-only mount/cleanup/remount cycle, a fast unmount, or userId
-        // changing again before this finished. Nothing to show an error for.
         if (controller.signal.aborted) return
         setOrgStatus('error')
       }
@@ -251,22 +367,13 @@ export function AppLayout() {
     }
   }, [userId])
 
-  // RequireAuth (the parent route) already guarantees a session exists before
-  // this layout renders, so `session` is only briefly null on the very first tick.
   if (!session) return null
 
   async function handleSignOut() {
-    // Cancel first so a still-in-flight active-member request (see
-    // useActiveMemberRole) is aborted rather than resolving into a 401
-    // after signOut() clears the session cookie.
     await queryClient.cancelQueries({ queryKey: ['active-member'] })
     await authClient.signOut()
     navigate('/login', { replace: true })
   }
-
-  // The domain Employee.role (ADMIN/HR/MANAGER/EMPLOYEE) has no dedicated endpoint yet;
-  // surface it only if the backend has attached it to the session user.
-  const employeeRole = (session.user as { role?: string } | undefined)?.role
 
   const permissionFlags: Record<NavPermission, boolean> = {
     manageEmployees: canManageEmployees,
@@ -275,8 +382,6 @@ export function AppLayout() {
   }
   const isItemVisible = (item: NavItem) => !item.permission || permissionFlags[item.permission]
 
-  // Filter before rendering, and drop groups whose every item was filtered out
-  // so an employee never sees an empty section header.
   const visibleEntries = SIDEBAR_ENTRIES.flatMap<SidebarEntry>((entry) => {
     if (!isNavGroup(entry)) return isItemVisible(entry) ? [entry] : []
     const visibleItems = entry.items.filter(isItemVisible)
@@ -314,6 +419,10 @@ export function AppLayout() {
     .map((part) => part[0]?.toUpperCase())
     .join('')
 
+  const orgMonogram = organizationName
+    ? organizationName.split(/\s+/).slice(0, 2).map((w) => w[0]?.toUpperCase()).join('')
+    : ''
+
   return (
     <div className="flex min-h-screen bg-canvas">
       <aside
@@ -321,13 +430,25 @@ export function AppLayout() {
           isSidebarCollapsed ? 'w-20 overflow-visible px-2' : 'w-64 overflow-y-auto px-4 max-md:w-56'
         }`}
       >
-        <div className={`flex items-center px-2 ${isSidebarCollapsed ? 'justify-center' : ''}`}>
-          {/* Company logo goes here once we have one; falls back to the name. */}
-          {!isSidebarCollapsed && <p className="text-lg font-semibold text-ink">HRM Portal</p>}
+        <div className={`flex items-center gap-2.5 px-2 ${isSidebarCollapsed ? 'justify-center' : ''}`}>
+          {orgStatus === 'loaded' && orgMonogram && (
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary text-xs font-bold text-white">
+              {orgMonogram}
+            </span>
+          )}
+          {!isSidebarCollapsed && (
+            <div className="min-w-0">
+              {orgStatus === 'loaded' && (
+                <p className="truncate text-sm font-semibold text-ink">{organizationName}</p>
+              )}
+              {orgStatus === 'loading' && <p className="text-sm text-muted">Loading…</p>}
+              {orgStatus === 'error' && <p className="text-sm text-error">Error</p>}
+              {orgStatus === 'empty' && <p className="text-sm text-muted">No org</p>}
+              <p className="text-[10px] font-medium uppercase tracking-wider text-muted">HRM</p>
+            </div>
+          )}
         </div>
         <nav className="flex flex-1 flex-col gap-1">
-          {/* Collapsed sidebar shows one icon per entry; a group's children
-              live in a hover/focus flyout instead of stretching the rail. */}
           {isSidebarCollapsed
             ? visibleEntries.map((entry) => {
                 if (!isNavGroup(entry)) return renderNavLink(entry, false)
@@ -376,8 +497,6 @@ export function AppLayout() {
                         }`}
                       />
                     </button>
-                    {/* grid-rows 0fr -> 1fr animates to the content's real
-                        height without hard-coding a max-height. */}
                     <div
                       className={`grid transition-[grid-template-rows] duration-200 ${
                         isExpanded ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
@@ -403,8 +522,8 @@ export function AppLayout() {
         </button>
       </aside>
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex items-center justify-between gap-4 border-b border-border bg-panel px-6 py-4">
-          <div className="flex min-w-0 flex-1 items-center gap-2 rounded-full border border-border bg-canvas px-4 py-2 text-ink-2 max-w-md">
+        <header className="flex items-center justify-between gap-4 border-b border-border bg-panel px-6 py-3">
+          <div className="flex min-w-0 flex-1 items-center gap-2 rounded-full border border-border bg-canvas px-4 py-1.5 text-ink-2 max-w-md">
             <Search className="h-4 w-4 shrink-0 text-muted" />
             <input
               type="text"
@@ -413,7 +532,8 @@ export function AppLayout() {
               readOnly
             />
           </div>
-          <div className="flex shrink-0 items-center gap-4">
+          <div className="flex shrink-0 items-center gap-3">
+            <CompactCheckIn />
             <button
               type="button"
               aria-label="Notifications"
@@ -421,27 +541,12 @@ export function AppLayout() {
             >
               <Bell className="h-5 w-5" />
             </button>
-            <div className="hidden text-right sm:block">
-              {orgStatus === 'loading' && <p className="text-sm text-muted">Loading organization...</p>}
-              {orgStatus === 'loaded' && <p className="text-sm font-medium text-ink">{organizationName}</p>}
-              {orgStatus === 'error' && <p className="text-sm text-error">Could not load organization</p>}
-              {orgStatus === 'empty' && <p className="text-sm text-muted">No active organization</p>}
-            </div>
-            <div className="flex items-center gap-3 border-l border-border pl-4">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent text-sm font-semibold text-ink">
-                {initials || '?'}
-              </span>
-              <div className="hidden text-left md:block">
-                <p className="text-sm font-medium text-ink">{session.user.name}</p>
-                <p className="text-xs text-muted">
-                  {session.user.email}
-                  {employeeRole && ` — ${employeeRole}`}
-                </p>
-              </div>
-              <Button variant="secondary" fullWidth={false} onClick={handleSignOut}>
-                Sign out
-              </Button>
-            </div>
+            <AvatarMenu
+              initials={initials}
+              userName={session.user.name}
+              userEmail={session.user.email}
+              onSignOut={handleSignOut}
+            />
           </div>
         </header>
         <main className="min-w-0 flex-1 overflow-y-auto p-6">

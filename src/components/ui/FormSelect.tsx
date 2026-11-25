@@ -21,6 +21,8 @@ interface FormSelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   // bottom edge and, since that overflow still counts toward a scrollable
   // ancestor's height, visibly inflate/scroll the whole container.
   openDirection?: 'down' | 'up'
+  // Shown in muted text when no option is selected (value is '').
+  placeholder?: string
 }
 
 interface SelectOption {
@@ -65,6 +67,7 @@ export function FormSelect({
   name,
   ref,
   openDirection = 'down',
+  placeholder,
   ...rest
 }: FormSelectProps) {
   const selectRef = useRef<HTMLSelectElement | null>(null)
@@ -174,11 +177,11 @@ export function FormSelect({
             setHighlightedIndex(Math.max(0, options.findIndex((option) => option.value === internalValue)))
           }}
           onKeyDown={handleTriggerKeyDown}
-          className={`flex w-full items-center justify-between gap-2 rounded-md border bg-white px-3 py-1.5 text-left text-ink-2 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 disabled:cursor-not-allowed disabled:opacity-50 ${
+          className={`flex w-full items-center justify-between gap-2 rounded-md border bg-white px-2.5 py-1 text-left text-sm text-ink-2 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 disabled:cursor-not-allowed disabled:opacity-50 ${
             errorMessage ? 'border-error' : 'border-border'
           } ${className ?? ''}`}
         >
-          <span className={`truncate ${selectedOption ? '' : 'text-muted'}`}>{selectedOption?.label ?? ''}</span>
+          <span className={`truncate ${selectedOption ? '' : 'text-muted'}`}>{selectedOption?.label ?? placeholder ?? ''}</span>
           <ChevronDown className={`h-4 w-4 shrink-0 text-muted transition-transform ${isOpen ? 'rotate-180' : ''}`} />
         </button>
         {isOpen && (

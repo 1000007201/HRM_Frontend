@@ -16,7 +16,6 @@ import { PendingInvitationsPage } from './pages/employees/PendingInvitationsPage
 import { OrgChartPage } from './pages/employees/OrgChartPage'
 import { DepartmentsPage } from './pages/employees/DepartmentsPage'
 import { MyLeavePage } from './pages/leave/MyLeavePage'
-import { ApplyLeavePage } from './pages/leave/ApplyLeavePage'
 import { LeaveApprovalsPage } from './pages/leave/LeaveApprovalsPage'
 import { LeaveTypesPage } from './pages/leave/LeaveTypesPage'
 import { HolidaysPage } from './pages/holidays/HolidaysPage'
@@ -59,7 +58,7 @@ function App() {
             <Route path="/invitations" element={<PendingInvitationsPage />} />
             <Route path="/departments" element={<DepartmentsPage />} />
             <Route path="/leave" element={<MyLeavePage />} />
-            <Route path="/leave/apply" element={<ApplyLeavePage />} />
+            <Route path="/leave/apply" element={<Navigate to="/leave" replace />} />
             <Route path="/leave/approvals" element={<LeaveApprovalsPage />} />
             <Route path="/leave/types" element={<LeaveTypesPage />} />
             <Route path="/holidays" element={<HolidaysPage />} />

@@ -1,16 +1,15 @@
 import { useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
-import { Pencil, Trash2 } from 'lucide-react'
+import { Pencil, Power, Plus, Trash2 } from 'lucide-react'
 import { Button } from '../../components/ui/Button'
-import { FormInput } from '../../components/ui/FormInput'
 import { ApiError, errorMessage } from '../../lib/apiClient'
 import { useCreateDepartment, useDeleteDepartment, useDepartments, useUpdateDepartment } from '../../features/employees/hooks'
 import { departmentFormSchema, type DepartmentFormValues } from '../../features/employees/validation'
 import type { Department } from '../../features/employees/types'
 import { LoadingState } from '../../components/ui/Spinner'
 
-function AddDepartmentForm() {
+function AddDepartmentBar() {
   const createDepartment = useCreateDepartment()
   const [serverError, setServerError] = useState('')
   const {
@@ -34,36 +33,31 @@ function AddDepartmentForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit(handleFormSubmit)} className="rounded-2xl border border-border bg-canvas p-4">
-      <p className="mb-3 text-sm font-medium text-ink">Add a department</p>
-      {serverError && (
-        <p className="mb-3 rounded-md border border-error bg-error-bg px-3 py-2 text-sm text-error">{serverError}</p>
-      )}
-      <div className="flex items-start gap-3">
-        <div className="w-64">
-          <FormInput
-            id="departmentName"
-            label="Name"
-            className="bg-white"
-            disabled={isSubmitting}
-            errorMessage={errors.name?.message}
-            {...register('name')}
-          />
-        </div>
-        <Button type="submit" className="mt-6" fullWidth={false} isLoading={isSubmitting}>
+    <div className="mb-6">
+      <form onSubmit={handleSubmit(handleFormSubmit)} className="flex items-center gap-2">
+        <Plus className="h-4 w-4 shrink-0 text-muted" />
+        <input
+          placeholder="New department name"
+          disabled={isSubmitting}
+          {...register('name')}
+          className="w-64 rounded-md border border-border bg-panel px-3 py-1.5 text-sm text-ink-2 placeholder:text-muted focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+        />
+        <Button type="submit" fullWidth={false} isLoading={isSubmitting}>
           Add
         </Button>
-      </div>
-    </form>
+      </form>
+      {errors.name && <p className="mt-1 pl-6 text-xs text-error">{errors.name.message}</p>}
+      {serverError && <p className="mt-1 pl-6 text-xs text-error">{serverError}</p>}
+    </div>
   )
 }
 
-function DepartmentRow({ department }: { department: Department }) {
+function DepartmentCard({ department }: { department: Department }) {
   const updateDepartment = useUpdateDepartment()
   const deleteDepartment = useDeleteDepartment()
   const [isEditing, setIsEditing] = useState(false)
   const [name, setName] = useState(department.name)
-  const [rowError, setRowError] = useState('')
+  const [cardError, setCardError] = useState('')
 
   function cancelEdit() {
     setIsEditing(false)
@@ -76,113 +70,142 @@ function DepartmentRow({ department }: { department: Department }) {
       cancelEdit()
       return
     }
-    setRowError('')
+    setCardError('')
     try {
       await updateDepartment.mutateAsync({ id: department.id, input: { name: trimmed } })
       setIsEditing(false)
     } catch (error) {
-      setRowError(errorMessage(error, 'Could not rename the department.'))
+      setCardError(errorMessage(error, 'Could not rename the department.'))
     }
   }
 
   async function handleToggleActive() {
-    setRowError('')
+    setCardError('')
     try {
       await updateDepartment.mutateAsync({ id: department.id, input: { isActive: !department.isActive } })
     } catch (error) {
-      setRowError(errorMessage(error, 'Could not update the department.'))
+      setCardError(errorMessage(error, 'Could not update the department.'))
     }
   }
 
   async function handleDelete() {
-    setRowError('')
+    setCardError('')
     try {
       await deleteDepartment.mutateAsync(department.id)
     } catch (error) {
-      // The backend refuses to delete a department still assigned to
-      // employees (409) — reassign or deactivate it instead of deleting.
       if (error instanceof ApiError && error.status === 409) {
-        setRowError('This department is assigned to one or more employees and can’t be deleted. Deactivate it instead.')
+        setCardError('Assigned to employees — deactivate instead.')
       } else {
-        setRowError(errorMessage(error, 'Could not delete the department.'))
+        setCardError(errorMessage(error, 'Could not delete the department.'))
       }
     }
   }
 
+  const initial = department.name.charAt(0).toUpperCase()
+
   return (
-    <li className="flex flex-col gap-2 rounded-md border border-border bg-white px-4 py-2">
-      <div className="flex items-center gap-3">
-        {isEditing ? (
-          <input
-            autoFocus
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            onKeyDown={(event) => {
-              if (event.key === 'Enter') handleRename()
-              if (event.key === 'Escape') cancelEdit()
-            }}
-            className="flex-1 rounded-md border border-border px-3 py-1.5 text-sm text-ink-2 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
-          />
-        ) : (
-          <span className={`flex-1 text-sm font-medium ${department.isActive ? 'text-ink' : 'text-muted line-through'}`}>
-            {department.name}
-          </span>
-        )}
-        <span
-          className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${
-            department.isActive ? 'bg-success-bg text-success' : 'bg-neutral text-neutral-ink'
-          }`}
-        >
-          {department.isActive ? 'Active' : 'Inactive'}
+    <div className="group flex flex-col rounded-xl border border-border bg-panel p-4 shadow-sm">
+      <div className="mb-3 flex items-start gap-3">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-sm font-semibold text-primary">
+          {initial}
         </span>
-        {isEditing ? (
-          <>
-            <Button fullWidth={false} isLoading={updateDepartment.isPending} onClick={handleRename}>
-              Save
-            </Button>
-            <Button variant="secondary" fullWidth={false} onClick={cancelEdit}>
-              Cancel
-            </Button>
-          </>
-        ) : (
-          <>
-            <button
-              type="button"
-              onClick={() => setIsEditing(true)}
-              className="shrink-0 rounded-md p-1.5 text-ink-2 hover:bg-row-hover"
-              aria-label={`Rename ${department.name}`}
-            >
-              <Pencil className="h-4 w-4" />
-            </button>
-            <Button variant="secondary" fullWidth={false} isLoading={updateDepartment.isPending} onClick={handleToggleActive}>
-              {department.isActive ? 'Deactivate' : 'Activate'}
-            </Button>
-            <button
-              type="button"
-              onClick={handleDelete}
-              disabled={deleteDepartment.isPending}
-              className="shrink-0 rounded-md p-1.5 text-error hover:bg-row-hover disabled:cursor-not-allowed disabled:opacity-50"
-              aria-label={`Delete ${department.name}`}
-            >
-              <Trash2 className="h-4 w-4" />
-            </button>
-          </>
-        )}
+        <div className="min-w-0 flex-1">
+          {isEditing ? (
+            <div className="flex flex-col gap-1.5">
+              <input
+                autoFocus
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter') handleRename()
+                  if (event.key === 'Escape') cancelEdit()
+                }}
+                className="w-full rounded-md border border-border px-2 py-1 text-sm text-ink-2 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+              />
+              <div className="flex gap-2">
+                <Button fullWidth={false} isLoading={updateDepartment.isPending} onClick={handleRename} className="!py-1 !px-2 !text-xs">
+                  Save
+                </Button>
+                <button type="button" onClick={cancelEdit} className="text-xs text-muted hover:text-ink-2">
+                  Cancel
+                </button>
+              </div>
+            </div>
+          ) : (
+            <>
+              <p className={`text-sm font-semibold leading-tight ${department.isActive ? 'text-ink' : 'text-muted line-through'}`}>
+                {department.name}
+              </p>
+              <span
+                className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[11px] font-medium ${
+                  department.isActive ? 'bg-success-bg text-success' : 'bg-neutral text-neutral-ink'
+                }`}
+              >
+                {department.isActive ? 'Active' : 'Inactive'}
+              </span>
+            </>
+          )}
+        </div>
       </div>
-      {rowError && <p className="text-xs text-error">{rowError}</p>}
-    </li>
+
+      <div className="mb-3">
+        <span className={`text-2xl font-bold leading-none ${department.employeeCount > 0 ? 'text-ink' : 'text-muted'}`}>
+          {department.employeeCount}
+        </span>
+        <p className="mt-0.5 text-xs text-muted">
+          employee{department.employeeCount === 1 ? '' : 's'}
+        </p>
+      </div>
+
+      {cardError && <p className="mb-2 text-xs text-error">{cardError}</p>}
+
+      {!isEditing && (
+        <div className="mt-auto flex items-center gap-1 border-t border-border pt-3 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
+          <button
+            type="button"
+            onClick={() => setIsEditing(true)}
+            title="Rename"
+            className="rounded p-1.5 text-muted hover:bg-row-hover hover:text-ink-2"
+          >
+            <Pencil className="h-3.5 w-3.5" />
+          </button>
+          <button
+            type="button"
+            onClick={handleToggleActive}
+            disabled={updateDepartment.isPending}
+            title={department.isActive ? 'Deactivate' : 'Activate'}
+            className="rounded p-1.5 text-muted hover:bg-row-hover hover:text-ink-2 disabled:opacity-50"
+          >
+            <Power className="h-3.5 w-3.5" />
+          </button>
+          <button
+            type="button"
+            onClick={handleDelete}
+            disabled={deleteDepartment.isPending}
+            title="Delete"
+            className="rounded p-1.5 text-muted hover:bg-error/10 hover:text-error disabled:opacity-50"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      )}
+    </div>
   )
 }
 
 export function DepartmentsPage() {
   const { data, isPending, isError, error } = useDepartments()
 
+  const totalEmployees = data?.departments.reduce((sum, d) => sum + d.employeeCount, 0) ?? 0
+
   return (
     <div>
-      <h1 className="mb-6 text-lg font-semibold text-ink">Departments</h1>
-      <div className="mb-6">
-        <AddDepartmentForm />
-      </div>
+      <h1 className="mb-1 text-lg font-semibold text-ink">Departments</h1>
+      {data && (
+        <p className="mb-6 text-sm text-muted">
+          {data.departments.length} department{data.departments.length === 1 ? '' : 's'} &middot; {totalEmployees} employee{totalEmployees === 1 ? '' : 's'}
+        </p>
+      )}
 
       {isPending ? (
         <LoadingState />
@@ -192,14 +215,19 @@ export function DepartmentsPage() {
         ) : (
           <p className="text-sm text-error">Could not load departments. Please try again.</p>
         )
-      ) : data.departments.length === 0 ? (
-        <p className="text-sm text-muted">No departments yet.</p>
       ) : (
-        <ul className="flex flex-col gap-2">
-          {data.departments.map((department) => (
-            <DepartmentRow key={department.id} department={department} />
-          ))}
-        </ul>
+        <>
+          <AddDepartmentBar />
+          {data.departments.length === 0 ? (
+            <p className="text-sm text-muted">No departments yet. Add one above.</p>
+          ) : (
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-4">
+              {data.departments.map((department) => (
+                <DepartmentCard key={department.id} department={department} />
+              ))}
+            </div>
+          )}
+        </>
       )}
     </div>
   )

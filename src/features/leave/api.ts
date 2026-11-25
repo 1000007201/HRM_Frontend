@@ -7,10 +7,12 @@ import type {
   LeaveStatus,
   LeaveType,
   PendingLeaveRequest,
+  UpdateLeaveTypeInput,
 } from './types'
 
-export function listLeaveTypes() {
-  return apiFetch<{ leaveTypes: LeaveType[] }>('/leave/types')
+export function listLeaveTypes(all?: boolean) {
+  const query = all ? '?all=true' : ''
+  return apiFetch<{ leaveTypes: LeaveType[] }>(`/leave/types${query}`)
 }
 
 export function createLeaveType(input: CreateLeaveTypeInput) {
@@ -18,6 +20,17 @@ export function createLeaveType(input: CreateLeaveTypeInput) {
     method: 'POST',
     body: JSON.stringify(input),
   })
+}
+
+export function updateLeaveType(id: string, input: UpdateLeaveTypeInput) {
+  return apiFetch<{ leaveType: LeaveType }>(`/leave/types/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(input),
+  })
+}
+
+export function toggleLeaveTypeActive(id: string) {
+  return apiFetch<{ leaveType: LeaveType }>(`/leave/types/${id}/toggle`, { method: 'PATCH' })
 }
 
 export function updateFloaterQuota(annualGrantDays: number) {

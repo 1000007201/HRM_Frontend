@@ -1,8 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import * as api from './api'
-import type { LeaveStatus } from './types'
+import type { LeaveStatus, UpdateLeaveTypeInput } from './types'
 
 const leaveTypesKey = ['leave', 'types'] as const
+const allLeaveTypesKey = ['leave', 'types', 'all'] as const
 const myBalancesKey = ['leave', 'balances', 'me'] as const
 const myRequestsKey = (status?: LeaveStatus) => ['leave', 'requests', 'me', status ?? 'all'] as const
 const pendingRequestsKey = ['leave', 'requests', 'pending'] as const
@@ -14,12 +15,39 @@ export function useLeaveTypes() {
   })
 }
 
+export function useAllLeaveTypes() {
+  return useQuery({
+    queryKey: allLeaveTypesKey,
+    queryFn: () => api.listLeaveTypes(true),
+  })
+}
+
 export function useCreateLeaveType() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: api.createLeaveType,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: leaveTypesKey })
+      queryClient.invalidateQueries({ queryKey: ['leave', 'types'] })
+    },
+  })
+}
+
+export function useUpdateLeaveType() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, input }: { id: string; input: UpdateLeaveTypeInput }) => api.updateLeaveType(id, input),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['leave', 'types'] })
+    },
+  })
+}
+
+export function useToggleLeaveTypeActive() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => api.toggleLeaveTypeActive(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['leave', 'types'] })
     },
   })
 }

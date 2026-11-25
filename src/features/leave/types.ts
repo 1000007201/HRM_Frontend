@@ -21,12 +21,9 @@ export interface LeaveType {
   annualCap: number
   isPaid: boolean
   allowHalfDay: boolean
+  isActive: boolean
   allocationType: LeaveAllocationType
   annualGrantDays: string | null
-  // Read-only — set only by the backend-seeded floater leave type, not
-  // creatable via the form below. When true, Apply Leave restricts its date
-  // picker to the org's optional holiday dates instead of a free range, and
-  // the backend rejects a request against it for any other date.
   isFloater: boolean
 }
 
@@ -37,6 +34,14 @@ export interface CreateLeaveTypeInput {
   accrualFrequency: LeaveAccrualFrequency
   isPaid: boolean
   allowHalfDay: boolean
+}
+
+export interface UpdateLeaveTypeInput {
+  name?: string
+  annualCap?: number
+  accrualFrequency?: LeaveAccrualFrequency
+  isPaid?: boolean
+  allowHalfDay?: boolean
 }
 
 // accruedDays/usedDays/availableDays come over the wire as strings (Prisma

@@ -10,6 +10,7 @@ export interface Department {
   id: string
   name: string
   isActive: boolean
+  employeeCount: number
 }
 
 export interface Employee {

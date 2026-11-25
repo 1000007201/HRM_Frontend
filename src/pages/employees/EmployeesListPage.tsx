@@ -1,7 +1,7 @@
 import { useMemo, useRef, useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { MoreHorizontal, X } from 'lucide-react'
+import { ChevronDown, MoreHorizontal, X } from 'lucide-react'
 import { Button } from '../../components/ui/Button'
 import { FormSelect } from '../../components/ui/FormSelect'
 import { Modal } from '../../components/ui/Modal'
@@ -186,11 +186,103 @@ interface ActiveFilter {
   clear: () => void
 }
 
+function DepartmentMultiSelect({
+  departments,
+  selected,
+  onChange,
+}: {
+  departments: { id: string; name: string }[]
+  selected: string[]
+  onChange: (ids: string[]) => void
+}) {
+  const [isOpen, setIsOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!isOpen) return
+    function handleClickOutside(event: MouseEvent) {
+      if (ref.current && !ref.current.contains(event.target as Node)) setIsOpen(false)
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [isOpen])
+
+  function toggle(id: string) {
+    onChange(selected.includes(id) ? selected.filter((s) => s !== id) : [...selected, id])
+  }
+
+  const label = selected.length === 0
+    ? 'Select'
+    : selected.length === 1
+      ? (departments.find((d) => d.id === selected[0])?.name ?? '1 selected')
+      : `${selected.length} selected`
+
+  return (
+    <div className="mb-4 w-48" ref={ref}>
+      <label className="mb-1 block text-sm font-medium text-ink-2">Department</label>
+      <div className="relative">
+        <button
+          type="button"
+          onClick={() => setIsOpen((prev) => !prev)}
+          className={`flex w-full items-center justify-between gap-2 rounded-md border border-border bg-white px-2.5 py-1 text-left text-sm focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 ${
+            selected.length > 0 ? 'text-ink-2' : 'text-muted'
+          }`}
+        >
+          <span className="truncate">{label}</span>
+          <ChevronDown className={`h-4 w-4 shrink-0 text-muted transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        </button>
+        {isOpen && (
+          <div className="absolute top-full z-10 mt-1 w-full rounded-md border border-border bg-white shadow-sm">
+            <div className="flex items-center justify-between border-b border-border px-3 py-1.5">
+              <button
+                type="button"
+                onClick={() => onChange(departments.map((d) => d.id))}
+                className="text-xs text-primary hover:underline"
+              >
+                Select all
+              </button>
+              <button
+                type="button"
+                onClick={() => onChange([])}
+                className="text-xs text-muted hover:text-ink-2"
+              >
+                Clear
+              </button>
+            </div>
+          <ul className="max-h-52 overflow-y-auto py-1">
+            {departments.map((dept) => {
+              const checked = selected.includes(dept.id)
+              return (
+                <li
+                  key={dept.id}
+                  onClick={() => toggle(dept.id)}
+                  className={`flex cursor-pointer items-center gap-2 px-3 py-1.5 text-sm text-ink-2 hover:bg-row-hover ${
+                    checked ? 'bg-active-pill-bg font-medium text-active-pill-ink' : ''
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={checked}
+                    readOnly
+                    className="h-3.5 w-3.5 rounded border-border text-primary focus:ring-0"
+                  />
+                  {dept.name}
+                </li>
+              )
+            })}
+          </ul>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 export function EmployeesListPage() {
   const [page, setPage] = useState(1)
   const [searchTerm, setSearchTerm] = useState('')
   const [roleFilter, setRoleFilter] = useState<EmployeeRole | ''>('')
-  const [departmentFilter, setDepartmentFilter] = useState('')
+  const [departmentFilter, setDepartmentFilter] = useState<string[]>([])
   const [statusFilter, setStatusFilter] = useState<'' | 'active' | 'inactive'>('')
   const [isAddOpen, setIsAddOpen] = useState(false)
   const [addServerError, setAddServerError] = useState('')
@@ -240,7 +332,7 @@ export function EmployeesListPage() {
     return data.employees.filter((employee) => {
       const matchesTerm = term === '' || employee.fullName.toLowerCase().includes(term) || employee.email.toLowerCase().includes(term)
       const matchesRole = roleFilter === '' || employee.role === roleFilter
-      const matchesDepartment = departmentFilter === '' || employee.departmentId === departmentFilter
+      const matchesDepartment = departmentFilter.length === 0 || (employee.departmentId !== null && departmentFilter.includes(employee.departmentId))
       const matchesStatus =
         statusFilter === '' || (statusFilter === 'active' ? employee.isActive : !employee.isActive)
       return matchesTerm && matchesRole && matchesDepartment && matchesStatus
@@ -256,9 +348,13 @@ export function EmployeesListPage() {
       const label = roleFilter.charAt(0) + roleFilter.slice(1).toLowerCase()
       filters.push({ key: 'role', label: `Role: ${label}`, clear: () => setRoleFilter('') })
     }
-    if (departmentFilter) {
-      const deptName = departmentData?.departments.find((d) => d.id === departmentFilter)?.name ?? departmentFilter
-      filters.push({ key: 'dept', label: `Dept: ${deptName}`, clear: () => setDepartmentFilter('') })
+    for (const deptId of departmentFilter) {
+      const deptName = departmentData?.departments.find((d) => d.id === deptId)?.name ?? deptId
+      filters.push({
+        key: `dept-${deptId}`,
+        label: `Dept: ${deptName}`,
+        clear: () => setDepartmentFilter((prev) => prev.filter((id) => id !== deptId)),
+      })
     }
     if (statusFilter) {
       filters.push({
@@ -273,7 +369,7 @@ export function EmployeesListPage() {
   function clearAllFilters() {
     setSearchTerm('')
     setRoleFilter('')
-    setDepartmentFilter('')
+    setDepartmentFilter([])
     setStatusFilter('')
   }
 
@@ -324,45 +420,36 @@ export function EmployeesListPage() {
                 placeholder="Name or email"
                 value={searchTerm}
                 onChange={(event) => setSearchTerm(event.target.value)}
-                className="w-full rounded-md border border-border px-3 py-2 text-sm text-ink-2 placeholder:text-muted focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+                className="w-full rounded-md border border-border px-2.5 py-1 text-sm text-ink-2 placeholder:text-muted focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
               />
             </div>
             <FormSelect
               id="roleFilter"
               label="Role"
+              placeholder="Select"
               className="w-40"
               value={roleFilter}
               onChange={(event) => setRoleFilter(event.target.value as EmployeeRole | '')}
             >
-              <option value="">All roles</option>
               {EMPLOYEE_ROLES.map((role) => (
                 <option key={role} value={role}>
                   {role}
                 </option>
               ))}
             </FormSelect>
-            <FormSelect
-              id="departmentFilter"
-              label="Department"
-              className="w-48"
-              value={departmentFilter}
-              onChange={(event) => setDepartmentFilter(event.target.value)}
-            >
-              <option value="">All departments</option>
-              {(departmentData?.departments ?? []).map((department) => (
-                <option key={department.id} value={department.id}>
-                  {department.name}
-                </option>
-              ))}
-            </FormSelect>
+            <DepartmentMultiSelect
+              departments={departmentData?.departments ?? []}
+              selected={departmentFilter}
+              onChange={setDepartmentFilter}
+            />
             <FormSelect
               id="statusFilter"
               label="Status"
+              placeholder="Select"
               className="w-36"
               value={statusFilter}
               onChange={(event) => setStatusFilter(event.target.value as 'active' | 'inactive' | '')}
             >
-              <option value="">All statuses</option>
               <option value="active">Active</option>
               <option value="inactive">Inactive</option>
             </FormSelect>
